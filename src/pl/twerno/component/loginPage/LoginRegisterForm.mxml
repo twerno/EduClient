@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="560" height="274" 
+		 xmlns:passwordValidator="pl.twerno.supportClasses.passwordValidator.*">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ValidationResultEvent;
+			import mx.rpc.AsyncToken;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.twerno.eduClient.RO.Account;
+			import net.twerno.eduClient.consts.Const;
+			import net.twerno.eduClient.responders.FunctResponder;
+			import net.twerno.eduClient.services.UserService;
+			
+			import pl.twerno.eduClient.Env.Env;
+			import pl.twerno.eduClient.Env.RPCErrorHandler;
+
+			private var env:Env = Env.env;
+
+			protected function loginBtn_clickHandler(event:MouseEvent):void {
+				if ((passwordValidator.validate().type == ValidationResultEvent.INVALID) || 
+				   (loginValidator.validate().type == ValidationResultEvent.INVALID)) {
+					return;
+				}
+				
+				var token:AsyncToken = env.eduClient.userService.login(login.text, password.text);
+				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+			}
+
+			protected function loggedInResult(data:ResultEvent):void {
+				var token:AsyncToken = env.eduClient.userService.getAccount();
+				token.addResponder(new FunctResponder(getAccountResult, getAccountFault));
+			}
+
+			protected function loggedInFault(info:FaultEvent):void {
+				currentState = "incorrectLogin";
+				RPCErrorHandler.handleError(info);
+			}
+
+			protected function getAccountResult(data:ResultEvent):void {
+				currentState = "MainState";
+				env.login(data.result as Account);
+			}
+
+			protected function getAccountFault(info:FaultEvent):void {
+				RPCErrorHandler.handleError(info, true);
+			}
+
+			protected function registerBtn_clickHandler(event:MouseEvent):void {
+				currentState = "MainState";
+
+				if ((newLoginValidator.validate().type         == ValidationResultEvent.INVALID) ||
+					(newPasswordValidator.validate().type      == ValidationResultEvent.INVALID) || 
+					(newPassword2Validator.validate().type     == ValidationResultEvent.INVALID) ||
+					(newPasswordMatchValidator.validate().type == ValidationResultEvent.INVALID)) {
+					return;
+				}
+
+				var account:Account = new Account();
+				account.username = newLogin.text;
+				account.password = newPassword.text;
+				account.enabled  = true;
+				if (tnUczen.selected)      {account.roles.addItem(Const.ROLE_UCZEN)}
+				if (tnNauczyciel.selected) {account.roles.addItem(Const.ROLE_NAUCZYCIEL)}
+				var token:AsyncToken = env.eduClient.userService.registerUser(account);
+				token.addResponder(new FunctResponder(registerResult, registerFault));
+			}
+			
+			protected function registerResult(data:ResultEvent):void {
+				var token:AsyncToken = env.eduClient.userService.login(newLogin.text, newPassword.text);
+				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+			}
+			
+			protected function registerFault(info:FaultEvent):void {
+				RPCErrorHandler.handleError(info, true);
+			}
+
+		]]>
+	</fx:Script>	
+	<s:states>
+		<s:State name="MainState"/>
+		<s:State name="incorrectLogin"/>
+	</s:states>
+	
+	<fx:Declarations>
+		<fx:String id="tooShortLogin">Login musi mieć przynajmniej 3 znaki!</fx:String>
+		<fx:String id="tooLongLogin">Login nie może być dłuższy niż 30 znaków!</fx:String>
+		<fx:String id="tooShortPass">Hasło musi mieć przynajmniej 3 znaki!</fx:String>
+		<fx:String id="tooLongPass">Hasło nie może być dłuższe niż 30 znaków!</fx:String>
+		<fx:String id="poleWymagane">To pole jest wymagane!</fx:String>
+		
+		<s:RadioButtonGroup id="radiogroup1"/>
+		<mx:StringValidator source="{login}" property="text" id="loginValidator"
+							minLength="3" maxLength="30"
+							tooShortError="{tooShortLogin}" tooLongError="{tooLongLogin}"
+							required="true" requiredFieldError="{poleWymagane}"/>
+		<mx:StringValidator source="{password}" property="text" id="passwordValidator"
+							minLength="3" maxLength="30"
+							tooShortError="{tooShortPass}" tooLongError="{tooLongPass}"
+							required="true" requiredFieldError="{poleWymagane}"/>
+		
+		<mx:StringValidator source="{newLogin}" property="text" id="newLoginValidator"
+							minLength="3" maxLength="30"
+							tooShortError="{tooShortLogin}" tooLongError="{tooLongLogin}"
+							required="true" requiredFieldError="{poleWymagane}"/>
+		<mx:StringValidator source="{newPassword}" property="text" id="newPasswordValidator"
+							minLength="3" maxLength="30"
+							tooShortError="{tooShortPass}" tooLongError="{tooLongPass}"
+							required="true" requiredFieldError="{poleWymagane}"/>
+		<mx:StringValidator source="{newPassword2}" property="text" id="newPassword2Validator"
+							minLength="3" maxLength="30"
+							tooShortError="{tooShortPass}" tooLongError="{tooLongPass}"
+							required="true" requiredFieldError="{poleWymagane}"/>
+		<passwordValidator:PasswordValidator 
+			source="{newPassword}" property="text" id="newPasswordMatchValidator"
+			confirmationSource="{newPassword2}" confirmationProperty="text"/>
+	</fx:Declarations>
+
+	<s:Panel width="250" height="246" title="Zaloguj się" top="10" left="302">
+		<mx:Form x="10" y="10" width="228" height="83">
+			<mx:FormItem label="Nazwa">
+				<s:TextInput id="login"/>
+			</mx:FormItem>
+			<mx:FormItem label="Hasło">
+				<s:TextInput id="password"/>
+			</mx:FormItem>
+		</mx:Form>
+		<s:Button x="83" y="101" label="Zaloguj się" id="loginBtn" click="loginBtn_clickHandler(event)"/>
+		<s:Label includeIn="incorrectLogin" x="84" y="81" text="Błędny login lub hasło!" color="#790404"/>
+	</s:Panel>
+	<s:Panel width="280" height="245" title="Zarejestruj się" top="10" left="10">
+		<mx:Form x="10" y="10" width="259" height="164">
+			<mx:FormItem label="Nazwa">
+				<s:TextInput id="newLogin"/>
+			</mx:FormItem>
+			<mx:FormItem label="Hasło">
+				<s:TextInput id="newPassword"/>
+			</mx:FormItem>
+			<mx:FormItem label="Powtórz hasło">
+				<s:TextInput id="newPassword2"/>
+			</mx:FormItem>
+			<s:RadioButton label="Uczeń"      groupName="radiogroup1" selected="true" id="tnUczen"/>
+			<s:RadioButton label="Nauczyciel" groupName="radiogroup1" selected="false" id="tnNauczyciel"/>
+		</mx:Form>
+		<s:Button x="79" y="182" label="Utwórz konto" id="registerBtn" click="registerBtn_clickHandler(event)"/>
+	</s:Panel>
+</s:Group>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   minWidth="955" minHeight="600" 
+			   xmlns:loginPage="pl.twerno.component.loginPage.*"
+			   creationComplete="application1_creationCompleteHandler(event)" currentState="LoginState">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			import pl.twerno.component.loginPage.LoginEvent;
+			import pl.twerno.eduClient.Env.Env;
+			
+			private var env:Env = Env.env;
+
+			protected function application1_creationCompleteHandler(event:FlexEvent):void {
+				env.addEventListener(LoginEvent.LOGGED_IN,  afterLoggedIn);
+				env.addEventListener(LoginEvent.LOGGED_OUT, afterLoggedOut);
+			}
+			
+			protected function afterLoggedIn(info:*):void {
+				Alert.show('logged');
+//				env.logout();
+			}
+			
+			protected function afterLoggedOut(info:*):void {
+				Alert.show('logged out');
+				currentState = 'LoginState';
+			}
+
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="LoginState"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<loginPage:LoginRegisterForm id='loginForm'
+		includeIn="LoginState" horizontalCenter="0" verticalCenter="0" >
+	</loginPage:LoginRegisterForm>
+</s:Application>
