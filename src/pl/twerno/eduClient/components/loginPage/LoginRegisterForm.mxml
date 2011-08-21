@@ -17,8 +17,9 @@
 			import net.twerno.eduClient.responders.FunctResponder;
 			import net.twerno.eduClient.services.UserService;
 			
-			import pl.twerno.eduClient.Env.Env;
-			import pl.twerno.eduClient.Env.RPCErrorHandler;
+			import pl.twerno.component.common.Colors;
+			import pl.twerno.component.common.Env.Env;
+			import pl.twerno.component.common.Env.RPCErrorHandler;
 
 			private var env:Env = Env.env;
 
@@ -27,7 +28,7 @@
 				   (loginValidator.validate().type == ValidationResultEvent.INVALID)) {
 					return;
 				}
-				
+
 				var token:AsyncToken = env.eduClient.userService.login(login.text, password.text);
 				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
 			}
@@ -80,6 +81,12 @@
 				RPCErrorHandler.handleError(info, true);
 			}
 
+
+			protected function button1_clickHandler(event:MouseEvent):void {
+				var token:AsyncToken = env.eduClient.userService.login('admin', 'admin');
+				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+			}
+
 		]]>
 	</fx:Script>	
 	<s:states>
@@ -121,32 +128,37 @@
 			confirmationSource="{newPassword2}" confirmationProperty="text"/>
 	</fx:Declarations>
 
-	<s:Panel width="250" height="246" title="Zaloguj się" top="10" left="302">
-		<mx:Form x="10" y="10" width="228" height="83">
+	<s:Panel width="250" height="246" title="Zaloguj się" top="10" left="302" styleName="GreenStyle">
+		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.svg')" 
+				  alpha="0.3" height="44" maintainAspectRatio="false"/>
+		<mx:Form x="10" width="228" height="83" top="0">
 			<mx:FormItem label="Nazwa">
-				<s:TextInput id="login"/>
+				<s:TextInput id="login" styleName="OrangeFocus"/>
 			</mx:FormItem>
 			<mx:FormItem label="Hasło">
-				<s:TextInput id="password"/>
+				<s:TextInput id="password" styleName="OrangeFocus"/>
 			</mx:FormItem>
 		</mx:Form>
-		<s:Button x="83" y="101" label="Zaloguj się" id="loginBtn" click="loginBtn_clickHandler(event)"/>
+		<s:Button label="Zaloguj się" id="loginBtn" click="loginBtn_clickHandler(event)" x.incorrectLogin="83" y.incorrectLogin="101" y.MainState="91" horizontalCenter.MainState="0"/>
 		<s:Label includeIn="incorrectLogin" x="84" y="81" text="Błędny login lub hasło!" color="#790404"/>
+		<s:Button x="9" y="142" label="Loguj jako admin" width="229" click="button1_clickHandler(event)"/>
 	</s:Panel>
-	<s:Panel width="280" height="245" title="Zarejestruj się" top="10" left="10">
-		<mx:Form x="10" y="10" width="259" height="164">
+	<s:Panel width="280" height="245" title="Zarejestruj się" top="10" left="10" styleName="GreenStyle">
+		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.svg')" 
+				  alpha="0.3" height="44" maintainAspectRatio="false"/>
+		<mx:Form x="10" width="259" height="164" top="0">
 			<mx:FormItem label="Nazwa">
-				<s:TextInput id="newLogin"/>
+				<s:TextInput id="newLogin" styleName="OrangeFocus"/>
 			</mx:FormItem>
 			<mx:FormItem label="Hasło">
-				<s:TextInput id="newPassword"/>
+				<s:TextInput id="newPassword" styleName="OrangeFocus"/>
 			</mx:FormItem>
 			<mx:FormItem label="Powtórz hasło">
-				<s:TextInput id="newPassword2"/>
+				<s:TextInput id="newPassword2" styleName="OrangeFocus"/>
 			</mx:FormItem>
 			<s:RadioButton label="Uczeń"      groupName="radiogroup1" selected="true" id="tnUczen"/>
 			<s:RadioButton label="Nauczyciel" groupName="radiogroup1" selected="false" id="tnNauczyciel"/>
 		</mx:Form>
-		<s:Button x="79" y="182" label="Utwórz konto" id="registerBtn" click="registerBtn_clickHandler(event)"/>
+		<s:Button label="Utwórz konto" id="registerBtn" click="registerBtn_clickHandler(event)" x.incorrectLogin="79" y.incorrectLogin="182" y.MainState="149" horizontalCenter.MainState="0"/>
 	</s:Panel>
 </s:Group>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 top="0" left="0" right="0" height="25"
+		 creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import pl.twerno.component.common.Colors;
+			import pl.twerno.component.common.Env.Env;
+			
+			private var env:Env = Env.env;
+			
+			public function setUsername(username: String):void {
+				hello.text = 'Witaj, '+username+'.';
+			}
+
+			protected function button1_clickHandler(event:MouseEvent):void {
+				env.logout();
+			}
+
+			protected function group1_creationCompleteHandler(event:FlexEvent):void {
+				env.addEventListener(LoginEvent.LOGGED_IN,  afterLoggedIn);
+				env.addEventListener(LoginEvent.LOGGED_OUT, afterLoggedOut);
+			}
+			
+			protected function afterLoggedIn(info:*):void {
+				setUsername(env.account.username);
+			}
+			
+			protected function afterLoggedOut(info:*):void {
+				setUsername('');
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	<s:Rect top="0" left="0" right="0" bottom="0">
+		<s:fill>
+			<s:SolidColor color="{Colors.TITLE_BAR_COLOR}"/>
+		</s:fill>
+	</s:Rect>
+	<s:Button right="5" top="2" label="Wyloguj" chromeColor="#FFE748" click="button1_clickHandler(event)" color="#7A0000"/>
+	<s:Label id='hello' right="90" text="Witaj" top="6" fontSize="16"/>
+</s:Group>

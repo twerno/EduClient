@@ -3,15 +3,18 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" 
 			   minWidth="955" minHeight="600" 
-			   xmlns:loginPage="pl.twerno.component.loginPage.*"
-			   creationComplete="application1_creationCompleteHandler(event)" currentState="LoginState">
+			   xmlns:loginPage="pl.twerno.eduClient.components.loginPage.*"
+			   creationComplete="application1_creationCompleteHandler(event)" 
+			   currentState="LoginState" 
+			   xmlns:components="pl.twerno.eduServer.components.*" xmlns:components1="pl.twerno.eduClient.components.*">
+	<fx:Style source="style.css"/>
 	<fx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			
-			import pl.twerno.component.loginPage.LoginEvent;
-			import pl.twerno.eduClient.Env.Env;
+			import pl.twerno.eduClient.components.loginPage.LoginEvent;
+			import pl.twerno.component.common.Env.Env;
 			
 			private var env:Env = Env.env;
 
@@ -21,25 +24,26 @@
 			}
 			
 			protected function afterLoggedIn(info:*):void {
-				Alert.show('logged');
-//				env.logout();
+				currentState = 'MainState';
 			}
 			
 			protected function afterLoggedOut(info:*):void {
-				Alert.show('logged out');
 				currentState = 'LoginState';
 			}
 
 		]]>
 	</fx:Script>
 	<s:states>
-		<s:State name="State1"/>
+		<s:State name="MainState"/>
 		<s:State name="LoginState"/>
 	</s:states>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
+	<components1:Background/>
 	<loginPage:LoginRegisterForm id='loginForm'
 		includeIn="LoginState" horizontalCenter="0" verticalCenter="0" >
 	</loginPage:LoginRegisterForm>
+	<loginPage:TitleBar enabled.LoginState="false" x="72" y="249">
+	</loginPage:TitleBar>
 </s:Application>

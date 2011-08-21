@@ -1,4 +1,4 @@
-package pl.twerno.eduClient.Env {
+package pl.twerno.component.common.Env {
 	import flash.events.EventDispatcher;
 	
 	import mx.containers.Accordion;
@@ -6,18 +6,22 @@ package pl.twerno.eduClient.Env {
 	import net.twerno.eduClient.EduClient;
 	import net.twerno.eduClient.RO.Account;
 	
-	import pl.twerno.component.loginPage.LoginEvent;
+	import pl.twerno.component.common.Images;
+	import pl.twerno.eduClient.components.loginPage.LoginEvent;
 
 	public class Env extends EventDispatcher {
 
 		public const endPoint : String = 'http://localhost:8080/EduServer/messagebroker/amf';
 
 		public var eduClient : EduClient = new EduClient(endPoint);
+		
+		public var images : Images = new Images();
 
-		public var loggedAccount : Account;
+		private var _loggedAccount : Account;
+		public function get account():Account {return _loggedAccount}
 
 		public function login(account:Account):void {
-			loggedAccount = account;
+			_loggedAccount = account;
 			dispatchEvent(new LoginEvent(LoginEvent.LOGGED_IN));
 		}
 		
@@ -27,7 +31,7 @@ package pl.twerno.eduClient.Env {
 			}
 
 			eduClient.userService.logout();
-			loggedAccount = null;
+			_loggedAccount = null;
 			dispatchEvent(new LoginEvent(LoginEvent.LOGGED_OUT));
 		}
 		

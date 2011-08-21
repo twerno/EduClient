@@ -3,7 +3,7 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" 
 			   minWidth="955" minHeight="600"
-			   creationComplete="application1_creationCompleteHandler(event)" xmlns:loginPage="pl.twerno.component.loginPage.*">
+			   creationComplete="application1_creationCompleteHandler(event)" xmlns:loginPage="pl.twerno.eduClient.components.loginPage.*">
 	
 	<fx:Script>
 		<![CDATA[
