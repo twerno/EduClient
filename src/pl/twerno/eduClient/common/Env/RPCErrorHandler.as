@@ -1,4 +1,4 @@
-package pl.twerno.component.common.Env {
+package pl.twerno.eduClient.common.Env {
 	import mx.controls.Alert;
 	import mx.rpc.events.FaultEvent;
 
@@ -11,18 +11,19 @@ package pl.twerno.component.common.Env {
 				env.bladPolaczenia();
 				throw new Error(dajFaultString('Błąd połączenia z serwerem', info));
 			}
-			
-			if (info.fault.faultCode == 'Client.Authorization') {
+
+			if (info.fault.faultCode == 'Client.Authorization')
 				throw new Error(dajFaultString('Błąd autoryzacji.', info));
-			}
-			
-			if (obsluzNieznane) {
+
+			if (info.fault.faultCode == 'Server.ResourceUnavailable')
+				throw new Error(dajFaultString('Brak serwisu docelowego.', info));
+
+			if (obsluzNieznane)
 				throw new Error(dajFaultString('Nieznany błąd', info));
-			}
 
 			return false;
 		} 
-		
+
 		public static function dajFaultString(info: String, faultEvent:FaultEvent):String {
 			return info+'\n'
 				+'<' +faultEvent.fault.faultCode +'>\n'

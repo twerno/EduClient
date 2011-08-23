@@ -1,4 +1,4 @@
-package pl.twerno.component.common {
+package pl.twerno.eduClient.common {
 	
 	public class Colors {
 		public static const TITLE_BAR_COLOR : uint = 0xFFEE8C;

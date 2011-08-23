@@ -1,4 +1,4 @@
-package pl.twerno.supportClasses.passwordValidator {
+package pl.twerno.eduClient.supportClasses.passwordValidator {
 	import mx.validators.ValidationResult;
 	import mx.validators.Validator;
 	

@@ -1,21 +1,19 @@
-package pl.twerno.component.common.Env {
+package pl.twerno.eduClient.common.Env {
 	import flash.events.EventDispatcher;
 	
 	import mx.containers.Accordion;
+	import mx.rpc.events.FaultEvent;
 	
 	import net.twerno.eduClient.EduClient;
 	import net.twerno.eduClient.RO.Account;
 	
-	import pl.twerno.component.common.Images;
-	import pl.twerno.eduClient.components.loginPage.LoginEvent;
+	import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 
 	public class Env extends EventDispatcher {
 
 		public const endPoint : String = 'http://localhost:8080/EduServer/messagebroker/amf';
 
 		public var eduClient : EduClient = new EduClient(endPoint);
-		
-		public var images : Images = new Images();
 
 		private var _loggedAccount : Account;
 		public function get account():Account {return _loggedAccount}
@@ -38,6 +36,10 @@ package pl.twerno.component.common.Env {
 		public function bladPolaczenia():void {
 			eduClient.otwartePolaczenie = false;
 			logout();
+		}
+		
+		public function FaultHandler(info:FaultEvent):void {
+			RPCErrorHandler.handleError(info, true);
 		}
 		
 		private static var _env : Env;

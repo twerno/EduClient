@@ -6,10 +6,11 @@
 		 creationComplete="group1_creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
+			import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 			import mx.events.FlexEvent;
 			
-			import pl.twerno.component.common.Colors;
-			import pl.twerno.component.common.Env.Env;
+			import pl.twerno.eduClient.common.Colors;
+			import pl.twerno.eduClient.common.Env.Env;
 			
 			private var env:Env = Env.env;
 			

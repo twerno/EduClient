@@ -2,7 +2,7 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="560" height="274" 
-		 xmlns:passwordValidator="pl.twerno.supportClasses.passwordValidator.*">
+		 xmlns:passwordValidator="pl.twerno.eduClient.supportClasses.passwordValidator.*">
 
 	<fx:Script>
 		<![CDATA[
@@ -17,9 +17,9 @@
 			import net.twerno.eduClient.responders.FunctResponder;
 			import net.twerno.eduClient.services.UserService;
 			
-			import pl.twerno.component.common.Colors;
-			import pl.twerno.component.common.Env.Env;
-			import pl.twerno.component.common.Env.RPCErrorHandler;
+			import pl.twerno.eduClient.common.Colors;
+			import pl.twerno.eduClient.common.Env.Env;
+			import pl.twerno.eduClient.common.Env.RPCErrorHandler;
 
 			private var env:Env = Env.env;
 
@@ -34,7 +34,7 @@
 			}
 
 			protected function loggedInResult(data:ResultEvent):void {
-				var token:AsyncToken = env.eduClient.userService.getAccount();
+				var token:AsyncToken = env.eduClient.userService.getLoggedUser();
 				token.addResponder(new FunctResponder(getAccountResult, getAccountFault));
 			}
 
@@ -62,13 +62,11 @@
 					return;
 				}
 
-				var account:Account = new Account();
-				account.username = newLogin.text;
-				account.password = newPassword.text;
-				account.enabled  = true;
-				if (tnUczen.selected)      {account.roles.addItem(Const.ROLE_UCZEN)}
-				if (tnNauczyciel.selected) {account.roles.addItem(Const.ROLE_NAUCZYCIEL)}
-				var token:AsyncToken = env.eduClient.userService.registerUser(account);
+				var token:AsyncToken = env.eduClient.userService.registerUser(
+					newLogin.text,
+					newPassword.text,
+					tnUczen.selected,
+					tnNauczyciel.selected);
 				token.addResponder(new FunctResponder(registerResult, registerFault));
 			}
 			
@@ -81,9 +79,18 @@
 				RPCErrorHandler.handleError(info, true);
 			}
 
-
 			protected function button1_clickHandler(event:MouseEvent):void {
 				var token:AsyncToken = env.eduClient.userService.login('admin', 'admin');
+				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+			}
+
+			protected function button2_clickHandler(event:MouseEvent):void {
+				var token:AsyncToken = env.eduClient.userService.login('uczen', 'uczen');
+				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+			}
+
+			protected function button3_clickHandler(event:MouseEvent):void {
+				var token:AsyncToken = env.eduClient.userService.login('nauczyciel', 'nauczyciel');
 				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
 			}
 
@@ -139,9 +146,11 @@
 				<s:TextInput id="password" styleName="OrangeFocus"/>
 			</mx:FormItem>
 		</mx:Form>
-		<s:Button label="Zaloguj się" id="loginBtn" click="loginBtn_clickHandler(event)" x.incorrectLogin="83" y.incorrectLogin="101" y.MainState="91" horizontalCenter.MainState="0"/>
-		<s:Label includeIn="incorrectLogin" x="84" y="81" text="Błędny login lub hasło!" color="#790404"/>
-		<s:Button x="9" y="142" label="Loguj jako admin" width="229" click="button1_clickHandler(event)"/>
+		<s:Button label="Zaloguj się" id="loginBtn" click="loginBtn_clickHandler(event)" y="91" horizontalCenter="0"/>
+		<s:Label includeIn="incorrectLogin" x="84" y="73" text="Błędny login lub hasło!" color="#790404"/>
+		<s:Button x="7" y="117" label="Loguj jako admin" width="230" click="button1_clickHandler(event)"/>
+		<s:Button label="Loguj jako uczen" width="230" x="7" y="142"  click="button2_clickHandler(event)"/>
+		<s:Button label="Loguj jako nauczyciel" width="230" x="7" y="166" click="button3_clickHandler(event)"/>
 	</s:Panel>
 	<s:Panel width="280" height="245" title="Zarejestruj się" top="10" left="10" styleName="GreenStyle">
 		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.svg')" 
@@ -159,6 +168,6 @@
 			<s:RadioButton label="Uczeń"      groupName="radiogroup1" selected="true" id="tnUczen"/>
 			<s:RadioButton label="Nauczyciel" groupName="radiogroup1" selected="false" id="tnNauczyciel"/>
 		</mx:Form>
-		<s:Button label="Utwórz konto" id="registerBtn" click="registerBtn_clickHandler(event)" x.incorrectLogin="79" y.incorrectLogin="182" y.MainState="149" horizontalCenter.MainState="0"/>
+		<s:Button label="Utwórz konto" id="registerBtn" click="registerBtn_clickHandler(event)" y="149" horizontalCenter="0"/>
 	</s:Panel>
 </s:Group>

@@ -1,4 +1,4 @@
-package pl.twerno.eduClient.components.loginPage {
+package pl.twerno.eduClient.panels.loginPage {
 	import flash.events.Event;
 	
 	public class LoginEvent extends Event {
