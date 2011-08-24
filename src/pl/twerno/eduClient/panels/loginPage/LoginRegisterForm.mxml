@@ -15,7 +15,9 @@
 			import net.twerno.eduClient.RO.Account;
 			import net.twerno.eduClient.consts.Const;
 			import net.twerno.eduClient.responders.FunctResponder;
-			import net.twerno.eduClient.services.UserService;
+			import net.twerno.eduClient.responders.RpcResponder;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			import net.twerno.eduClient.rpc.services.UserService;
 			
 			import pl.twerno.eduClient.common.Colors;
 			import pl.twerno.eduClient.common.Env.Env;
@@ -29,26 +31,26 @@
 					return;
 				}
 
-				var token:AsyncToken = env.eduClient.userService.login(login.text, password.text);
-				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+				var token:RpcToken = env.eduClient.userService.login(login.text, password.text);
+				token.addResponder(new RpcResponder(loggedInResult, loggedInFault));
 			}
 
-			protected function loggedInResult(data:ResultEvent):void {
-				var token:AsyncToken = env.eduClient.userService.getLoggedUser();
-				token.addResponder(new FunctResponder(getAccountResult, getAccountFault));
+			protected function loggedInResult(data:ResultEvent, token:RpcToken):void {
+				var token:RpcToken = env.eduClient.userService.getLoggedUser();
+				token.addResponder(new RpcResponder(getAccountResult, getAccountFault));
 			}
 
-			protected function loggedInFault(info:FaultEvent):void {
+			protected function loggedInFault(info:FaultEvent, token:RpcToken):void {
 				currentState = "incorrectLogin";
 				RPCErrorHandler.handleError(info);
 			}
 
-			protected function getAccountResult(data:ResultEvent):void {
+			protected function getAccountResult(data:ResultEvent, token:RpcToken):void {
 				currentState = "MainState";
 				env.login(data.result as Account);
 			}
 
-			protected function getAccountFault(info:FaultEvent):void {
+			protected function getAccountFault(info:FaultEvent, token:RpcToken):void {
 				RPCErrorHandler.handleError(info, true);
 			}
 
@@ -62,36 +64,36 @@
 					return;
 				}
 
-				var token:AsyncToken = env.eduClient.userService.registerUser(
+				var token:RpcToken = env.eduClient.userService.registerUser(
 					newLogin.text,
 					newPassword.text,
 					tnUczen.selected,
 					tnNauczyciel.selected);
-				token.addResponder(new FunctResponder(registerResult, registerFault));
+				token.addResponder(new RpcResponder(registerResult, registerFault));
 			}
 			
-			protected function registerResult(data:ResultEvent):void {
-				var token:AsyncToken = env.eduClient.userService.login(newLogin.text, newPassword.text);
-				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+			protected function registerResult(data:ResultEvent, token:RpcToken):void {
+				var token:RpcToken = env.eduClient.userService.login(newLogin.text, newPassword.text);
+				token.addResponder(new RpcResponder(loggedInResult, loggedInFault));
 			}
 			
-			protected function registerFault(info:FaultEvent):void {
+			protected function registerFault(info:FaultEvent, token:RpcToken):void {
 				RPCErrorHandler.handleError(info, true);
 			}
 
 			protected function button1_clickHandler(event:MouseEvent):void {
-				var token:AsyncToken = env.eduClient.userService.login('admin', 'admin');
-				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+				var token:RpcToken = env.eduClient.userService.login('admin', 'admin');
+				token.addResponder(new RpcResponder(loggedInResult, loggedInFault));
 			}
 
 			protected function button2_clickHandler(event:MouseEvent):void {
-				var token:AsyncToken = env.eduClient.userService.login('uczen', 'uczen');
-				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+				var token:RpcToken = env.eduClient.userService.login('uczen', 'uczen');
+				token.addResponder(new RpcResponder(loggedInResult, loggedInFault));
 			}
 
 			protected function button3_clickHandler(event:MouseEvent):void {
-				var token:AsyncToken = env.eduClient.userService.login('nauczyciel', 'nauczyciel');
-				token.addResponder(new FunctResponder(loggedInResult, loggedInFault));
+				var token:RpcToken = env.eduClient.userService.login('nauczyciel', 'nauczyciel');
+				token.addResponder(new RpcResponder(loggedInResult, loggedInFault));
 			}
 
 		]]>

@@ -6,6 +6,7 @@ package pl.twerno.eduClient.common.Env {
 	
 	import net.twerno.eduClient.EduClient;
 	import net.twerno.eduClient.RO.Account;
+	import net.twerno.eduClient.rpc.tokens.RpcToken;
 	
 	import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 
@@ -38,7 +39,7 @@ package pl.twerno.eduClient.common.Env {
 			logout();
 		}
 		
-		public function FaultHandler(info:FaultEvent):void {
+		public function FaultHandler(info:FaultEvent, token:RpcToken):void {
 			RPCErrorHandler.handleError(info, true);
 		}
 		
