@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="560" height="274" 
-		 xmlns:passwordValidator="pl.twerno.eduClient.supportClasses.passwordValidator.*">
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:passwordValidator="pl.twerno.eduClient.supportClasses.passwordValidator.*" 
+		 width="530" height="380">
 
 	<fx:Script>
 		<![CDATA[
@@ -12,18 +13,19 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
-			import net.twerno.eduClient.RO.Account;
+			import net.twerno.eduClient.RO.user.Account;
 			import net.twerno.eduClient.consts.Const;
 			import net.twerno.eduClient.responders.FunctResponder;
 			import net.twerno.eduClient.responders.RpcResponder;
-			import net.twerno.eduClient.rpc.tokens.RpcToken;
 			import net.twerno.eduClient.rpc.services.UserService;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
 			
+			import pl.twerno.commLib.Images;
 			import pl.twerno.eduClient.common.Colors;
 			import pl.twerno.eduClient.common.Env.Env;
 			import pl.twerno.eduClient.common.Env.RPCErrorHandler;
 
-			private var env:Env = Env.env;
+			private var env:Env = Env.get;
 
 			protected function loginBtn_clickHandler(event:MouseEvent):void {
 				if ((passwordValidator.validate().type == ValidationResultEvent.INVALID) || 
@@ -137,39 +139,54 @@
 			confirmationSource="{newPassword2}" confirmationProperty="text"/>
 	</fx:Declarations>
 
-	<s:Panel width="250" height="246" title="Zaloguj się" top="10" left="302" styleName="GreenStyle">
+	<s:Panel height="245" title="Zarejestruj się" styleName="GreenStyle" width="250" x="10" y="10">
 		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.svg')" 
 				  alpha="0.3" height="44" maintainAspectRatio="false"/>
-		<mx:Form x="10" width="228" height="83" top="0">
-			<mx:FormItem label="Nazwa">
-				<s:TextInput id="login" styleName="OrangeFocus"/>
+		<mx:Form height="164" top="0" left="0" right="0">
+			<mx:FormItem label="Nazwa" width="100%">
+				<s:TextInput id="newLogin" styleName="OrangeFocus" width="100%"/>
 			</mx:FormItem>
-			<mx:FormItem label="Hasło">
-				<s:TextInput id="password" styleName="OrangeFocus"/>
+			<mx:FormItem label="Hasło" width="100%" textAlign="left">
+				<s:TextInput id="newPassword" styleName="OrangeFocus" width="100%"/>
+			</mx:FormItem>
+			<mx:FormItem label="Powtórz hasło" width="100%">
+				<s:TextInput id="newPassword2" styleName="OrangeFocus" width="100%"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<s:RadioButton label="Uczeń"      groupName="radiogroup1" selected="true" id="tnUczen"/>
+				<s:RadioButton label="Nauczyciel" groupName="radiogroup1" selected="false" id="tnNauczyciel"/>
 			</mx:FormItem>
 		</mx:Form>
-		<s:Button label="Zaloguj się" id="loginBtn" click="loginBtn_clickHandler(event)" y="91" horizontalCenter="0"/>
-		<s:Label includeIn="incorrectLogin" x="84" y="73" text="Błędny login lub hasło!" color="#790404"/>
-		<s:Button x="7" y="117" label="Loguj jako admin" width="230" click="button1_clickHandler(event)"/>
-		<s:Button label="Loguj jako uczen" width="230" x="7" y="142"  click="button2_clickHandler(event)"/>
-		<s:Button label="Loguj jako nauczyciel" width="230" x="7" y="166" click="button3_clickHandler(event)"/>
+		<s:Button label="Utwórz konto" id="registerBtn" y="149" horizontalCenter="0"
+				  click="registerBtn_clickHandler(event)" 
+				  skinClass="pl.twerno.commLib.skins.button.Key_addButtonSkin"/>
 	</s:Panel>
-	<s:Panel width="280" height="245" title="Zarejestruj się" top="10" left="10" styleName="GreenStyle">
+	
+	<s:Panel title="Zaloguj się" styleName="GreenStyle" width="250" height="245" x="270" y="10">
 		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.svg')" 
 				  alpha="0.3" height="44" maintainAspectRatio="false"/>
-		<mx:Form x="10" width="259" height="164" top="0">
-			<mx:FormItem label="Nazwa">
-				<s:TextInput id="newLogin" styleName="OrangeFocus"/>
+		<mx:Form height="113" top="0" left="0" right="0" height.incorrectLogin="145" top.incorrectLogin="0" left.incorrectLogin="0" right.incorrectLogin="0">
+			<mx:FormItem label="Nazwa" width="100%">
+				<s:TextInput id="login" styleName="OrangeFocus" width="100%"/>
 			</mx:FormItem>
-			<mx:FormItem label="Hasło">
-				<s:TextInput id="newPassword" styleName="OrangeFocus"/>
+			<mx:FormItem label="Hasło" width="100%">
+				<s:TextInput id="password" styleName="OrangeFocus" width="100%"/>
 			</mx:FormItem>
-			<mx:FormItem label="Powtórz hasło">
-				<s:TextInput id="newPassword2" styleName="OrangeFocus"/>
-			</mx:FormItem>
-			<s:RadioButton label="Uczeń"      groupName="radiogroup1" selected="true" id="tnUczen"/>
-			<s:RadioButton label="Nauczyciel" groupName="radiogroup1" selected="false" id="tnNauczyciel"/>
+			<mx:FormItem label="Powtórz hasło" width="100%" visible="false"/>
 		</mx:Form>
-		<s:Button label="Utwórz konto" id="registerBtn" click="registerBtn_clickHandler(event)" y="149" horizontalCenter="0"/>
-	</s:Panel>
+		<s:Group width="100%" height="22" includeIn="incorrectLogin" x="0" y="70">
+			<s:layout>
+				<s:HorizontalLayout verticalAlign="middle" paddingLeft="45"/>
+			</s:layout>
+			<mx:Image includeIn="incorrectLogin" x="31" y="18" width="16" height="16" source="{Images.get().exclamationImg}"/>
+			<s:Label text="Błędna nazwa lub hasło!" includeIn="incorrectLogin" paddingTop="2" color="#E50C0C"/>
+		</s:Group>
+		<s:Button label="Zaloguj się" id="loginBtn" 
+				  click="loginBtn_clickHandler(event)"
+				  skinClass="pl.twerno.commLib.skins.button.KeyButtonSkin" y="75" horizontalCenter="0" y.incorrectLogin="97"/>
+	</s:Panel>	
+	
+	<s:Button label="Loguj jako uczen"      click="button2_clickHandler(event)" y="311" chromeColor="#FFEE8C" width="200" skinClass="pl.twerno.commLib.skins.button.KeyButtonSkin" horizontalCenter="0"/>
+	<s:Button label="Loguj jako nauczyciel" click="button3_clickHandler(event)" y="340" chromeColor="#FFEE8C" width="200" skinClass="pl.twerno.commLib.skins.button.KeyButtonSkin" horizontalCenter="0"/>
+	<s:Button label="Loguj jako admin"      click="button1_clickHandler(event)" y="282" chromeColor="#FFEE8C" width="200" skinClass="pl.twerno.commLib.skins.button.KeyButtonSkin" horizontalCenter="0"/>
 </s:Group>

@@ -7,8 +7,7 @@
 			   creationComplete="application1_creationCompleteHandler(event)" 
 			   currentState="LoginState" 
 			   xmlns:components="pl.twerno.eduClient.components.*" 
-			   xmlns:adminPanel="pl.twerno.component.common.adminPanel.*" 
-			   xmlns:admin="pl.twerno.eduClient.panels.admin.*" xmlns:panels="pl.twerno.eduClient.panels.*">
+			   xmlns:panels="pl.twerno.eduClient.panels.*">
 	<fx:Style source="style.css"/>
 	<fx:Script>
 		<![CDATA[
@@ -18,9 +17,10 @@
 			import net.twerno.eduClient.consts.Const;
 			
 			import pl.twerno.eduClient.common.Env.Env;
+			import pl.twerno.eduClient.panels.MasterPanel;
 			import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 			
-			private var env:Env = Env.env;
+			private var env:Env = Env.get;
 
 			protected function application1_creationCompleteHandler(event:FlexEvent):void {
 				env.addEventListener(LoginEvent.LOGGED_IN,  afterLoggedIn);
@@ -28,13 +28,8 @@
 			}
 			
 			protected function afterLoggedIn(info:*):void {
-				if (env.account.roles.contains(Const.ROLE_ADMIN)) {
-					currentState = 'AdminState';	
-				} else if (env.account.roles.contains(Const.ROLE_NAUCZYCIEL)) {
-					currentState = 'NauczycielState';
-				} else if (env.account.roles.contains(Const.ROLE_UCZEN)) {
-					currentState = 'UczenState';
-				}
+				currentState = 'LoggedState';
+				masterPanel.init();
 			}
 
 			protected function afterLoggedOut(info:*):void {
@@ -46,20 +41,16 @@
 	<s:states>
 		<s:State name="MainState"/>
 		<s:State name="LoginState"/>
-		<s:State name="AdminState"/>
-		<s:State name="NauczycielState"/>
-		<s:State name="UczenState"/>
-		<s:State name="RodzicState"/>
+		<s:State name="LoggedState"/>
 	</s:states>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<components:Background/>
-	<loginPage:LoginRegisterForm id='loginForm'
-		includeIn="LoginState" horizontalCenter="0" verticalCenter="0" >
+	<loginPage:LoginRegisterForm id='loginForm' includeIn="LoginState" 
+								 horizontalCenter="0" verticalCenter="0" >
 	</loginPage:LoginRegisterForm>
-	<panels:TitleBar enabled.LoginState="false" x="72" y="249">
-	</panels:TitleBar>
-	<admin:AdminPanel includeIn="AdminState" left="10" top="33" right="10" bottom="10">
-	</admin:AdminPanel>
+	<panels:TitleBar enabled.LoginState="false"/>
+	<panels:MasterPanel id='masterPanel' includeIn="LoggedState" 
+						left="0" top="25" right="0" bottom="0" />
 </s:Application>

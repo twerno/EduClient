@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Button label="Dodaj pytanie" bottom="0" left="0" height="21"/>
+	<s:Button x="105" bottom="0" label="Usuń pytanie"/>
+	<mx:DataGrid left="0" top="0" right="0" bottom="30">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Pytanie" dataField="col1"/>
+			<mx:DataGridColumn headerText="Kategoria" dataField="col2"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:Group>

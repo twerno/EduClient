@@ -4,7 +4,7 @@ package pl.twerno.eduClient.common.Env {
 
 	public class RPCErrorHandler {
 		
-		private static var env:Env = Env.env;
+		private static var env:Env = Env.get;
 
 		public static function handleError(info:FaultEvent, obsluzNieznane: Boolean = false):Boolean {
 			if (info.fault.faultCode == 'Client.Error.MessageSend') {

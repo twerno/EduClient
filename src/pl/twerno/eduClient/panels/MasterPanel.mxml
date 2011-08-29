@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="578" height="300"
+		 creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.logging.LogEvent;
+			
+			import net.twerno.eduClient.RO.user.Grupa;
+			import net.twerno.eduClient.consts.Const;
+			import net.twerno.eduClient.helper.UserHelper;
+			
+			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.common.Env.Env;
+			import pl.twerno.eduClient.panels.admin.GroupsPanel;
+			import pl.twerno.eduClient.panels.admin.UsersPanel;
+			import pl.twerno.eduClient.panels.loginPage.LoginEvent;
+			
+			import spark.events.IndexChangeEvent;
+
+			private var env:Env = Env.get;
+			
+			[Bindable]
+			protected var panels:ArrayCollection = new ArrayCollection();
+			
+			protected function masterPanelMenu_changeHandler(event:IndexChangeEvent):void {
+				var currentItem:MenuItem = masterPanelMenu.selectedItem as MenuItem;
+				content.removeAllElements();
+				content.addElement(currentItem.panel);
+				currentItem.panel.init();
+			}
+			
+			public function init():void {
+				for each (var rola:String in env.account.roles) {
+					if (rola == Const.ROLE_ADMIN) {
+						panels.addItem(new MenuItem('Użytkownicy', Images.get().user_greenImg, new UsersPanel()));
+						panels.addItem(new MenuItem('Grupy', Images.get().groupImg, new GroupsPanel()));
+					}
+				}
+				masterPanelMenu.selectedIndex = 0;
+				masterPanelMenu_changeHandler(null);
+			}
+
+			protected function group1_creationCompleteHandler(event:FlexEvent):void {
+				env.addEventListener(LoginEvent.LOGGED_OUT, loggedOut_handler);
+				masterPanelMenu_changeHandler(null);
+			}
+			
+			protected function loggedOut_handler(event: LoginEvent):void {
+				content.removeAllElements();
+				panels.removeAll();
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+	
+	</fx:Declarations>
+
+	<s:List id='masterPanelMenu'
+			left="10" top="10" 
+			width="150" bottom="10" 
+			dataProvider="{panels}"
+			change="masterPanelMenu_changeHandler(event)"
+			itemRenderer="pl.twerno.eduClient.panels.MasterPanelMenuRenderer"></s:List>
+	<s:Rect left="170" top="10" bottom="10" right="10">
+		<s:stroke>
+			<s:SolidColorStroke color="0x000000"/>
+		</s:stroke>
+	</s:Rect>
+	<s:Group id='content' left="170" top="10" bottom="10" right="10">
+	</s:Group>
+</s:Group>

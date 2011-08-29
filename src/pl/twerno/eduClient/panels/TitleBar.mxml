@@ -8,14 +8,17 @@
 		<![CDATA[
 			import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 			import mx.events.FlexEvent;
-			
+
 			import pl.twerno.eduClient.common.Colors;
 			import pl.twerno.eduClient.common.Env.Env;
-			
-			private var env:Env = Env.env;
-			
+
+			private var env:Env = Env.get;
+
 			public function setUsername(username: String):void {
-				hello.text = 'Witaj, '+username+'.';
+				if (username != '')
+					hello.text = 'Witaj, '+username+'.';
+				else
+					hello.text = '';
 			}
 
 			protected function button1_clickHandler(event:MouseEvent):void {
@@ -26,11 +29,11 @@
 				env.addEventListener(LoginEvent.LOGGED_IN,  afterLoggedIn);
 				env.addEventListener(LoginEvent.LOGGED_OUT, afterLoggedOut);
 			}
-			
+
 			protected function afterLoggedIn(info:*):void {
 				setUsername(env.account.username);
 			}
-			
+
 			protected function afterLoggedOut(info:*):void {
 				setUsername('');
 			}
@@ -47,5 +50,5 @@
 		</s:fill>
 	</s:Rect>
 	<s:Button right="5" top="2" label="Wyloguj" chromeColor="#FFE748" click="button1_clickHandler(event)" color="#7A0000"/>
-	<s:Label id='hello' right="90" text="Witaj" top="6" fontSize="16"/>
+	<s:Label id='hello' right="90" text="" top="6" fontSize="16"/>
 </s:Group>

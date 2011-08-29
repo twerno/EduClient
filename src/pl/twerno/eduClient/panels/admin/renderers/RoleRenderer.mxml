@@ -8,11 +8,13 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
+			
+			import net.twerno.eduClient.RO.user.Account;
 
 			protected function mxdatagriditemrenderer1_dataChangeHandler(event:FlexEvent):void {
-				lblData.text = (data.roles as ArrayCollection).toArray().join(', ');;
+				lblData.text = ((data as Account).roles as ArrayCollection).toArray().join(', ');;
 			}
 		]]>
 	</fx:Script>
-	<s:Label id="lblData" text="" />
+	<s:Label x='5' y='2' width="{explicitWidth -10}" height="100%" verticalAlign="middle" id="lblData" text="" />
 </s:MXDataGridItemRenderer>

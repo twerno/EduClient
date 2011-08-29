@@ -5,7 +5,7 @@ package pl.twerno.eduClient.common.Env {
 	import mx.rpc.events.FaultEvent;
 	
 	import net.twerno.eduClient.EduClient;
-	import net.twerno.eduClient.RO.Account;
+	import net.twerno.eduClient.RO.user.Account;
 	import net.twerno.eduClient.rpc.tokens.RpcToken;
 	
 	import pl.twerno.eduClient.panels.loginPage.LoginEvent;
@@ -15,6 +15,9 @@ package pl.twerno.eduClient.common.Env {
 		public const endPoint : String = 'http://localhost:8080/EduServer/messagebroker/amf';
 
 		public var eduClient : EduClient = new EduClient(endPoint);
+		
+		[Bindable]
+		public var adminEnv:AdminEnv = new AdminEnv();
 
 		private var _loggedAccount : Account;
 		public function get account():Account {return _loggedAccount}
@@ -25,15 +28,17 @@ package pl.twerno.eduClient.common.Env {
 		}
 		
 		public function logout():void {
-			if (!eduClient.userService.authenticated()) {
-				return
-			}
+			adminEnv.clean();
+			
+//			if (!eduClient.userService.authenticated()) {
+//				return
+//			}
 
 			eduClient.userService.logout();
 			_loggedAccount = null;
 			dispatchEvent(new LoginEvent(LoginEvent.LOGGED_OUT));
 		}
-		
+
 		public function bladPolaczenia():void {
 			eduClient.otwartePolaczenie = false;
 			logout();
@@ -44,7 +49,7 @@ package pl.twerno.eduClient.common.Env {
 		}
 		
 		private static var _env : Env;
-		public static function get env():Env {
+		public static function get get():Env {
 			if (!_env) {_env = new Env()}
 			return _env;
 		}

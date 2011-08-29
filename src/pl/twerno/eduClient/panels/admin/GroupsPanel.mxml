@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panels:AbstractPanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:panels="pl.twerno.eduClient.panels.*" 
+					  width="482" height="300">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ValidationResultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.twerno.eduClient.RO.user.Grupa;
+			import net.twerno.eduClient.responders.RpcResponder;
+			import net.twerno.eduClient.rpc.tokens.GrupaRpcToken;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			
+			import pl.twerno.commLib.helpers.CollectionHelper;
+			import pl.twerno.commLib.helpers.StringHelper;
+			import pl.twerno.eduClient.common.Env.Env;
+			
+			import spark.components.Group;
+			
+			[Bindable]
+			private var env:Env = Env.get;
+			
+			protected function dodajGrupe_clickHandler(event:MouseEvent):void {
+				if (nowaGrupaNameValidator.validate().type == ValidationResultEvent.INVALID) return;
+				if (CollectionHelper.arayCollectionContains(env.adminEnv.grupy, 'nazwa', nowaGrupaName.text)) {
+					Alert.show("Grupa o nazwie \"" +nowaGrupaName.text +"\" już istnieje.");
+					return;
+				}
+				
+				var token:RpcToken = env.eduClient.userService.dodajGrupe(nowaGrupaName.text);
+				token.addResponder(new RpcResponder(grupaDodanaHandled, env.FaultHandler));
+				nowaGrupaName.text = '';
+			}
+					
+			protected function grupaDodanaHandled(data:ResultEvent, token:GrupaRpcToken):void {
+				// grupa została dodana				
+				env.adminEnv.grupy.addItem(data.result as Grupa);	
+			}
+						
+			protected function usunGrupe_clickHandler(event:MouseEvent):void {
+				if (grupyList.selectedItem == null) return;
+				var grupa:Grupa = grupyList.selectedItem as Grupa;
+				var token:RpcToken = env.eduClient.userService.usunGrupe(grupa.nazwa);
+				token.addResponder(new RpcResponder(null, env.FaultHandler));
+			}
+					
+			protected function grupaUsunietaHandler(data:ResultEvent, token:GrupaRpcToken):void {
+				// usuń grupę
+				env.adminEnv.grupy.disableAutoUpdate();
+				for (var i:int = env.adminEnv.grupy.length -1; i >= 0 ; i--)
+					if ((env.adminEnv.grupy.getItemAt(i) as Grupa).nazwa == token.grupaName)
+						env.adminEnv.grupy.removeItemAt(i);
+				env.adminEnv.grupy.enableAutoUpdate();
+				env.adminEnv.grupy.refresh();
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:StringValidator source="{nowaGrupaName}" property="text" id="nowaGrupaNameValidator"
+							minLength="3" maxLength="30"
+							tooShortError="Nazwa grupy jest za krótka." tooLongError="Nazwa grupy jest za długa."
+							required="true" requiredFieldError="Pole wymagane."/>
+	</fx:Declarations>
+	
+	<s:Panel left="0" top="0" bottom="0" width="190" title="Dostępne grupy">
+		<s:List id="grupyList" dataProvider="{env.adminEnv.grupy}" 
+				left="5" top="5" bottom="5" right="5"
+				borderVisible="false"
+				itemRenderer="pl.twerno.eduClient.panels.admin.renderers.GrupaListRenderer"/>
+	</s:Panel>
+
+	<s:Panel width="277" height="179" left="200" top="0" title="Opcje grup">
+		<mx:Form left="0" top="0" right="0" bottom="0">
+			<mx:FormItem label="Nowa grupa" width="100%">
+				<s:TextInput width="100%" id="nowaGrupaName"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<s:Button label="Dodaj nową grupę" skinClass="pl.twerno.commLib.skins.button.AddButtonSkin" click="dodajGrupe_clickHandler(event)"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<mx:HRule width="100%" height="100%"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<s:Button label="Usuń wybraną grupę" skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin" click="usunGrupe_clickHandler(event)"/>
+			</mx:FormItem>
+		</mx:Form>
+	</s:Panel>
+</panels:AbstractPanel>

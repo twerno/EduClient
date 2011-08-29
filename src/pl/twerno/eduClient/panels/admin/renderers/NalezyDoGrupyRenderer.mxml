@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true"
+				minHeight="25">
+	<fx:Script>
+		<![CDATA[
+			import net.twerno.eduClient.RO.user.Grupa;
+
+			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.common.Env.Env;
+
+			[Bindable]
+			private var env:Env = Env.get;
+
+			protected function checkbox1_changeHandler(event:Event):void {
+				if (chBox.selected)
+					env.adminEnv.selectedUser.dodajGrupe((data as Grupa));
+				else
+					env.adminEnv.selectedUser.usunGrupe((data as Grupa).nazwa);
+			}
+		]]>
+	</fx:Script>
+
+	<mx:Image verticalCenter="0" left="5" width="16" height="16"
+			  source="{Images.get().groupImg}"/>
+	<s:CheckBox id='chBox' top="0" bottom="0" left="25" right="5" 
+				enabled="{env.adminEnv.selectedUser != null}"
+				selected="{env.adminEnv.selectedUser.hasGroup((data as Grupa).nazwa)}"
+				label="{(data as Grupa).nazwa}"
+				change="checkbox1_changeHandler(event)"/>
+</s:ItemRenderer>
