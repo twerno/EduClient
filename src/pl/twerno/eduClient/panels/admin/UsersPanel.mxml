@@ -27,9 +27,6 @@
 			import pl.twerno.eduClient.panels.admin.renderers.GrupyRenderer;
 			import pl.twerno.eduClient.panels.admin.renderers.NalezyDoGrupyRenderer;
 
-			[Bindable]
-			private var env:Env = Env.get;
-
 			protected function findAllAccoundsResult(data:ResultEvent, token:RpcToken):void {
 				env.adminEnv.accounts.disableAutoUpdate();
 				env.adminEnv.accounts.removeAll();

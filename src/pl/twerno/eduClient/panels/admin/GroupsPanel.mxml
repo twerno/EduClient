@@ -22,9 +22,6 @@
 			import spark.components.Group;
 			import spark.events.IndexChangeEvent;
 			
-			[Bindable]
-			private var env:Env = Env.get;
-			
 			public override function init():void {
 				grupyList.selectedIndex = env.adminEnv.selectedGroupIdx;
 			}

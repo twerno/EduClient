@@ -3,6 +3,8 @@ package pl.twerno.eduClient.panels {
 	
 	import mx.events.FlexEvent;
 	
+	import pl.twerno.eduClient.common.Env.Env;
+	
 	import spark.components.Group;
 	import spark.effects.Fade;
 	
@@ -10,6 +12,9 @@ package pl.twerno.eduClient.panels {
 		
 		public var fadeIn:Fade;
 		public var fadeOut:Fade;
+		
+		[Bindable]
+		protected static var env:Env = Env.get;
 		
 		public function AbstractPanel() {
 			super();
