@@ -7,6 +7,8 @@
 	<fx:Script>
 		<![CDATA[			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.IVisualElement;
 			import mx.events.FlexEvent;
 			import mx.logging.LogEvent;
 			
@@ -29,18 +31,26 @@
 			
 			protected function masterPanelMenu_changeHandler(event:IndexChangeEvent):void {
 				var currentItem:MenuItem = masterPanelMenu.selectedItem as MenuItem;
-				content.removeAllElements();
+				var oldPanel:IVisualElement
+				try {
+					oldPanel = content.getElementAt(0);
+				} catch (e:Error) {
+					oldPanel = null;
+				}
+
+				if (oldPanel)
+					content.removeElement(oldPanel);
 				content.addElement(currentItem.panel);
 				currentItem.panel.init();
+				currentItem.panel.setFocus();
 			}
-			
+
 			public function init():void {
-				for each (var rola:String in env.account.roles) {
-					if (rola == Const.ROLE_ADMIN) {
-						panels.addItem(new MenuItem('Użytkownicy', Images.get().user_greenImg, new UsersPanel()));
-						panels.addItem(new MenuItem('Grupy', Images.get().groupImg, new GroupsPanel()));
-					}
+				if (env.account.hasRole(Const.ROLE_ADMIN)) {
+					panels.addItem(new MenuItem('Użytkownicy', Images.get().user_greenImg, new UsersPanel()));
+					panels.addItem(new MenuItem('Grupy', Images.get().groupImg, new GroupsPanel()));
 				}
+
 				masterPanelMenu.selectedIndex = 0;
 				masterPanelMenu_changeHandler(null);
 			}
@@ -54,11 +64,9 @@
 				content.removeAllElements();
 				panels.removeAll();
 			}
-
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-	
 	</fx:Declarations>
 
 	<s:List id='masterPanelMenu'
@@ -72,6 +80,7 @@
 			<s:SolidColorStroke color="0x000000"/>
 		</s:stroke>
 	</s:Rect>
-	<s:Group id='content' left="170" top="10" bottom="10" right="10">
+	<s:Group id='content' 
+			 left="170" top="10" bottom="10" right="10">
 	</s:Group>
 </s:Group>

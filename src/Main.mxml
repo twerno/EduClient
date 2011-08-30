@@ -5,34 +5,77 @@
 			   minWidth="955" minHeight="600" 
 			   xmlns:loginPage="pl.twerno.eduClient.panels.loginPage.*"
 			   creationComplete="application1_creationCompleteHandler(event)" 
-			   currentState="LoginState" 
+			   currentState="MainState" 
 			   xmlns:components="pl.twerno.eduClient.components.*" 
-			   xmlns:panels="pl.twerno.eduClient.panels.*">
+			   xmlns:panels="pl.twerno.eduClient.panels.*"
+			   currentStateChange="application1_currentStateChangeHandler(event)"
+			   preinitialize="application1_preinitializeHandler(event)">
 	<fx:Style source="style.css"/>
 	<fx:Script>
 		<![CDATA[
+			import com.greensock.*;
+			import com.greensock.easing.*;
+			
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.events.StateChangeEvent;
 			
 			import net.twerno.eduClient.consts.Const;
 			
 			import pl.twerno.eduClient.common.Env.Env;
 			import pl.twerno.eduClient.panels.MasterPanel;
 			import pl.twerno.eduClient.panels.loginPage.LoginEvent;
-			
+			import pl.twerno.eduClient.panels.loginPage.LoginRegisterForm;
+
 			private var env:Env = Env.get;
+			private var loginForm:LoginRegisterForm = new LoginRegisterForm();
 
 			protected function application1_creationCompleteHandler(event:FlexEvent):void {
 				env.addEventListener(LoginEvent.LOGGED_IN,  afterLoggedIn);
 				env.addEventListener(LoginEvent.LOGGED_OUT, afterLoggedOut);
+				TweenLite.to(loginForm, 0.5, {y:(this.height -loginForm.height)/2, ease:com.greensock.easing.Bounce.easeOut});
 			}
-			
+
 			protected function afterLoggedIn(info:*):void {
 				currentState = 'LoggedState';
 				masterPanel.init();
+				ukryjLoginPanel();
 			}
 
 			protected function afterLoggedOut(info:*):void {
+				currentState = 'LoginState';
+			}
+
+			protected function pokazLoginPanel():void {
+				loginForm.scaleX = 1;
+				loginForm.scaleY = 1;
+				loginForm.alpha  = 1;
+				loginForm.horizontalCenter = 0;
+				loginForm.y = -loginForm.height;
+				this.addElement(loginForm);
+				TweenLite.to(loginForm, 0.5, {y:(this.height -loginForm.height)/2, ease:com.greensock.easing.Bounce.easeOut});
+			}
+
+			protected function ukryjLoginPanel():void {
+				TweenLite.to(loginForm, 1, {scaleX:0, scaleY:0, x:(loginForm.x*3/2), y:(loginForm.y*3/2), onComplete:usunLoginPanel, alpha:0});
+			}
+			
+			protected function usunLoginPanel():void {
+				this.removeElement(loginForm);
+			}
+
+			protected function application1_currentStateChangeHandler(event:StateChangeEvent):void {
+				if (currentState == 'LoginState') {
+					pokazLoginPanel();
+				}
+			}
+
+			protected function application1_preinitializeHandler(event:FlexEvent):void {
+				loginForm.scaleX = 1;
+				loginForm.scaleY = 1;
+				loginForm.alpha  = 1;
+				loginForm.horizontalCenter = 0;
+				loginForm.y  = -loginForm.height;
 				currentState = 'LoginState';
 			}
 
@@ -44,13 +87,14 @@
 		<s:State name="LoggedState"/>
 	</s:states>
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
+	<s:layout.MainState>
+		<s:BasicLayout/>
+	</s:layout.MainState>
 	<components:Background/>
-	<loginPage:LoginRegisterForm id='loginForm' includeIn="LoginState" 
-								 horizontalCenter="0" verticalCenter="0" >
-	</loginPage:LoginRegisterForm>
-	<panels:TitleBar enabled.LoginState="false"/>
+	<!--<loginPage:LoginRegisterForm id='loginForm'>
+	</loginPage:LoginRegisterForm>-->
+	<panels:TitleBar enabled.LoggedState="true" enabled="false"/>
 	<panels:MasterPanel id='masterPanel' includeIn="LoggedState" 
 						left="0" top="25" right="0" bottom="0" />
 </s:Application>

@@ -6,8 +6,11 @@
 					  width="724" height="480">
 	<fx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
+			import mx.events.ValidationResultEvent;
 			import mx.rpc.events.ResultEvent;
 			
 			import net.twerno.eduClient.RO.user.Account;
@@ -49,6 +52,7 @@
 				token.addResponder(new RpcResponder(findAllAccoundsResult, env.FaultHandler));
 				var token2:RpcToken = env.eduClient.userService.findAllGroups();
 				token2.addResponder(new RpcResponder(findAllGrupsResult, env.FaultHandler));
+				usersGrid.selectedIndex = env.adminEnv.selectedAccountIdx;
 				datagrid1_changeHandler(null);
 			}
 
@@ -59,6 +63,8 @@
 					env.adminEnv.selectedUser  = (usersGrid.selectedItem as Account).kopia();
 				else
 					env.adminEnv.selectedUser = null;
+				
+				env.adminEnv.selectedAccountIdx = usersGrid.selectedIndex;
 
 				noweHaslo.enabled          = tnEnabled;
 				aktywneChBox.enabled       = tnEnabled;
@@ -97,7 +103,6 @@
 					env.adminEnv.selectedUser.usunRole(Const.ROLE_ADMIN);
 			}
 
-
 			protected function tnNauczycielChBox_changeHandler(event:Event):void {
 				if ((event.currentTarget as CheckBox).selected)
 					env.adminEnv.selectedUser.dodajRole(Const.ROLE_NAUCZYCIEL);
@@ -105,10 +110,25 @@
 					env.adminEnv.selectedUser.usunRole(Const.ROLE_NAUCZYCIEL);
 			}
 
+			protected function zapiszNoweHasloBtn_clickHandler(event:MouseEvent):void {
+				if (noweHasloValidator.validate().type == ValidationResultEvent.INVALID ||
+					env.adminEnv.selectedUser == null)
+					return;
+
+				var token:RpcToken = env.eduClient.userService.zmienHaslo(env.adminEnv.selectedUser.username, noweHaslo.text);
+				token.addResponder(new RpcResponder(after_zmienHaslo, env.FaultHandler));
+			}
+
+			protected function after_zmienHaslo(data:ResultEvent, token:RpcToken):void {
+				Alert.show("Hasło zostało zmienione");
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:StringValidator source="{noweHaslo}" property="text" id="noweHasloValidator"
+							minLength="3" maxLength="30"
+							tooShortError="Hasło jest za krótkie." tooLongError="Hasło jest za długie"
+							required="true" requiredFieldError="Wpisz hasło."/>
 	</fx:Declarations>
 	
 	<mx:DataGrid id="usersGrid" left="0" top="0" bottom="0"
@@ -135,7 +155,7 @@
 				<s:TextInput width="100%" id="noweHaslo"/>
 			</mx:FormItem>
 			<mx:FormItem width="100%">
-				<s:Button label="Zapisz nowe hasło" skinClass="pl.twerno.commLib.skins.button.SaveButtonSkin" id="zapiszNoweHasloBtn"/>
+				<s:Button label="Zapisz nowe hasło" skinClass="pl.twerno.commLib.skins.button.SaveButtonSkin" id="zapiszNoweHasloBtn" click="zapiszNoweHasloBtn_clickHandler(event)"/>
 			</mx:FormItem>
 			<mx:FormItem width="100%">
 				<mx:HRule width="100%" verticalCenter="0" height="100%"/>

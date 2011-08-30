@@ -20,9 +20,14 @@
 			import pl.twerno.eduClient.common.Env.Env;
 			
 			import spark.components.Group;
+			import spark.events.IndexChangeEvent;
 			
 			[Bindable]
 			private var env:Env = Env.get;
+			
+			public override function init():void {
+				grupyList.selectedIndex = env.adminEnv.selectedGroupIdx;
+			}
 			
 			protected function dodajGrupe_clickHandler(event:MouseEvent):void {
 				if (nowaGrupaNameValidator.validate().type == ValidationResultEvent.INVALID) return;
@@ -45,18 +50,18 @@
 				if (grupyList.selectedItem == null) return;
 				var grupa:Grupa = grupyList.selectedItem as Grupa;
 				var token:RpcToken = env.eduClient.userService.usunGrupe(grupa.nazwa);
-				token.addResponder(new RpcResponder(null, env.FaultHandler));
+				token.addResponder(new RpcResponder(grupaUsunietaHandler, env.FaultHandler));
 			}
 					
 			protected function grupaUsunietaHandler(data:ResultEvent, token:GrupaRpcToken):void {
 				// usuń grupę
-				env.adminEnv.grupy.disableAutoUpdate();
-				for (var i:int = env.adminEnv.grupy.length -1; i >= 0 ; i--)
-					if ((env.adminEnv.grupy.getItemAt(i) as Grupa).nazwa == token.grupaName)
-						env.adminEnv.grupy.removeItemAt(i);
-				env.adminEnv.grupy.enableAutoUpdate();
-				env.adminEnv.grupy.refresh();
+				env.adminEnv.delGrupa(token.grupaName);
 			}
+
+			protected function grupyList_changeHandler(event:IndexChangeEvent):void {
+				env.adminEnv.selectedGroupIdx = grupyList.selectedIndex;
+			}
+
 		]]>
 	</fx:Script>
 	
@@ -71,6 +76,7 @@
 		<s:List id="grupyList" dataProvider="{env.adminEnv.grupy}" 
 				left="5" top="5" bottom="5" right="5"
 				borderVisible="false"
+				change="grupyList_changeHandler(event)"
 				itemRenderer="pl.twerno.eduClient.panels.admin.renderers.GrupaListRenderer"/>
 	</s:Panel>
 
