@@ -19,8 +19,12 @@
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.events.StateChangeEvent;
+			import mx.rpc.events.ResultEvent;
 			
+			import net.twerno.eduClient.RO.user.Account;
 			import net.twerno.eduClient.consts.Const;
+			import net.twerno.eduClient.responders.RpcResponder;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
 			
 			import pl.twerno.eduClient.common.Env.Env;
 			import pl.twerno.eduClient.panels.MasterPanel;
@@ -33,6 +37,10 @@
 			protected function application1_creationCompleteHandler(event:FlexEvent):void {
 				env.addEventListener(LoginEvent.LOGGED_IN,  afterLoggedIn);
 				env.addEventListener(LoginEvent.LOGGED_OUT, afterLoggedOut);
+				
+				var token:RpcToken = env.eduClient.userService.getLoggedUser();
+				token.addResponder(new RpcResponder(imAlreadyLogged, env.FaultHandler));
+
 				TweenLite.to(loginForm, 0.5, {y:(this.height -loginForm.height)/2, ease:com.greensock.easing.Bounce.easeOut});
 			}
 
@@ -68,6 +76,10 @@
 				if (currentState == 'LoginState') {
 					pokazLoginPanel();
 				}
+			}
+
+			protected function imAlreadyLogged(data:ResultEvent, token:RpcToken):void {
+				env.login(data.result as Account);
 			}
 
 			protected function application1_preinitializeHandler(event:FlexEvent):void {

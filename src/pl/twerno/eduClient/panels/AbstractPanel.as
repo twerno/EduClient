@@ -14,7 +14,7 @@ package pl.twerno.eduClient.panels {
 		public var fadeOut:Fade;
 		
 		[Bindable]
-		protected static var env:Env = Env.get;
+		protected var env:Env = Env.get;
 		
 		public function AbstractPanel() {
 			super();
