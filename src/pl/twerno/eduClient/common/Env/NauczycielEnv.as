@@ -3,6 +3,7 @@ package pl.twerno.eduClient.common.Env {
 	
 	import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
 	import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
+	import net.twerno.eduClient.RO.zadanie.Zadanie;
 	
 	[Bindable]
 	public class NauczycielEnv implements IUserEnv {
@@ -13,9 +14,11 @@ package pl.twerno.eduClient.common.Env {
 
 		public var wybranyZbiorPytan:ZbiorPytan;
 
-//		public var wybranePytanie:PytanieZamkniete;
-
-//		public var wybranePytanieIdx:int = -1;		
+		public var zadaniaList:ArrayCollection = new ArrayCollection();
+		
+		public var wybraneZadanie:Zadanie;	
+		
+		public var dostepneZbioryPytanTypu:ArrayCollection = new ArrayCollection();;
 		
 		public function zapiszZbior(zbiorPytan:ZbiorPytan):void {
 			zbioryPytanList.disableAutoUpdate();
@@ -37,7 +40,23 @@ package pl.twerno.eduClient.common.Env {
 
 			zbioryPytanList.enableAutoUpdate();
 		}
-		
+
+		public function zapisz_Zadanie(zadanie:Zadanie):void {
+			zadaniaList.disableAutoUpdate();
+
+			var old_Zadanie_idx:int = zadaniaList.length;
+
+			for (var i:int = 0; i < zadaniaList.length; i++)
+				if ((zadaniaList.getItemAt(i) as Zadanie).id == zadanie.id) {
+					old_Zadanie_idx = i;
+					zadaniaList.removeItemAt(old_Zadanie_idx);
+					break;
+				}
+
+			zadaniaList.addItemAt(zadanie, old_Zadanie_idx);
+			zadaniaList.enableAutoUpdate();
+		}
+
 		public function usunZbior(id:String):void {
 			zbioryPytanList.disableAutoUpdate();
 			for each (var zbior:ZbiorPytan in zbioryPytanList)

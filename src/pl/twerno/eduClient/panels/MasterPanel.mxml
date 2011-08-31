@@ -8,6 +8,7 @@
 		<![CDATA[			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.Image;
 			import mx.core.IVisualElement;
 			import mx.events.FlexEvent;
 			import mx.logging.LogEvent;
@@ -21,6 +22,7 @@
 			import pl.twerno.eduClient.panels.admin.GroupsPanel;
 			import pl.twerno.eduClient.panels.admin.UsersPanel;
 			import pl.twerno.eduClient.panels.loginPage.LoginEvent;
+			import pl.twerno.eduClient.panels.nauczyciel.ZadaniaPanel;
 			import pl.twerno.eduClient.panels.nauczyciel.ZbioryPytanPanel;
 			
 			import spark.events.IndexChangeEvent;
@@ -33,6 +35,9 @@
 			protected function masterPanelMenu_changeHandler(event:IndexChangeEvent):void {
 				var currentItem:MenuItem = masterPanelMenu.selectedItem as MenuItem;
 				var oldPanel:IVisualElement
+				
+				if (!currentItem) return;
+
 				try {
 					oldPanel = content.getElementAt(0);
 				} catch (e:Error) {
@@ -53,14 +58,18 @@
 				}
 				if (env.account.hasRole(Const.ROLE_NAUCZYCIEL)) {
 					panels.addItem(new MenuItem('Zbiory pytań', Images.get().pluginImg, new ZbioryPytanPanel()));
+					addPanel('Zadania', Images.get().script_editImg, new ZadaniaPanel());
 				}
-				if (env.account.hasRole(Const.ROLE_ADMIN)) {
+				if (env.account.hasRole(Const.ROLE_UCZEN)) {
 					
 				}					
-					
 
 				masterPanelMenu.selectedIndex = 0;
 				masterPanelMenu_changeHandler(null);
+			}
+			
+			private function addPanel(label:String, img:Class, panel:AbstractPanel):void {
+				panels.addItem(new MenuItem(label, img, panel));
 			}
 
 			protected function group1_creationCompleteHandler(event:FlexEvent):void {

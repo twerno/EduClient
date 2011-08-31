@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true"
+				currentState="Main"
+				dataChange="dataChangeHandler(event)" 
+				height.Main="25" height.Selected="55">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
+			import net.twerno.eduClient.RO.zadanie.Zadanie_ZbiorPytan;
+			
+			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.common.Env.Env;
+
+			[Bindable]
+			private var env:Env = Env.get;
+			
+			[Bindable]
+			private var zzp:Zadanie_ZbiorPytan;
+
+			protected function chBox_changeHandler(event:Event):void {
+				if (chBox.selected) {
+					zzp              = new Zadanie_ZbiorPytan();
+					zzp.zadanie      = env.nauczycielEnv.wybraneZadanie;
+					zzp.zbiorPytanId = (data as ZbiorPytan).id;
+
+					env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan.addItem(zzp);
+					currentState = 'Selected';
+				} else {
+					env.nauczycielEnv.wybraneZadanie.del_zbiorPytan((data as ZbiorPytan).id);
+					currentState = 'Main';
+				}
+			}
+
+			protected function dataChangeHandler(event:FlexEvent):void {
+				var zp:ZbiorPytan = data as ZbiorPytan;
+				zzp = env.nauczycielEnv.wybraneZadanie.get_zbiorPytan(zp.id);
+
+				if (zzp != null) {
+					chBox.selected = true;
+					currentState   = 'Selected';
+				} else {
+					chBox.selected = false;
+					currentState   = 'Main';
+				}
+			}
+
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="Selected"/>
+		<s:State name="Main"/>
+	</s:states>
+
+	<mx:Image y="4" left="5" width="16" height="16"
+			  source="{Images.get().pluginImg}"/>
+	<s:CheckBox id='chBox' top="0" height="25" left="25" right="5" 
+				label="{(data as ZbiorPytan).opis +' (' +(data as ZbiorPytan).kategoria +')'}"
+				change="chBox_changeHandler(event)"/>
+	<s:NumericStepper id='ns_min' x="197" y="27" includeIn="Selected" width="65" 
+					  minimum="0" stepSize="1"
+					  value="@{zzp.coNajmniej}"/>
+	<s:NumericStepper id='ns_max' x="373" y="27" includeIn="Selected" width="65" 
+					  minimum="{ns_min.value}" stepSize="1"
+					  value="@{zzp.nieWiecejNiz}"/>
+	<s:Label x="121" y="27" text="Co najmniej" height="25" verticalAlign="middle" includeIn="Selected"/>
+	<s:Label x="290" y="27" text="Nie więcej niż" height="25" verticalAlign="middle" includeIn="Selected"/>
+	<s:Label x="25" y="27" text="Pytań ze zbioru:" height="25" verticalAlign="middle" includeIn="Selected"/>
+</s:ItemRenderer>

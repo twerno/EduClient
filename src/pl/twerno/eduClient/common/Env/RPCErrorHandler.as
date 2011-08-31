@@ -12,8 +12,11 @@ package pl.twerno.eduClient.common.Env {
 				throw new Error(dajFaultString('Błąd połączenia z serwerem', info));
 			}
 
-			if (info.fault.faultCode == 'Client.Authorization')
-				throw new Error(dajFaultString('Błąd autoryzacji.', info));
+			if (info.fault.faultCode == 'Client.Authorization') {
+				env.logout();
+				return true;
+//				throw new Error(dajFaultString('Błąd autoryzacji.', info));
+			}
 
 			if (info.fault.faultCode == 'Server.ResourceUnavailable')
 				throw new Error(dajFaultString('Brak serwisu docelowego.', info));

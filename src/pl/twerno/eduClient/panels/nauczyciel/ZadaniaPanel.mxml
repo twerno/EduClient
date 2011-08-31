@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panels:AbstractPanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:panels="pl.twerno.eduClient.panels.*" 
+					  width="800" height="600">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.twerno.eduClient.RO.zadanie.Zadanie;
+			import net.twerno.eduClient.consts.Const;
+			import net.twerno.eduClient.responders.RpcResponder;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			import net.twerno.eduClient.rpc.tokens.ZadanieToken;
+			
+			import pl.twerno.commLib.Images;
+			import pl.twerno.commLib.konwerter.KonwerterItem;
+			
+			import spark.events.IndexChangeEvent;
+
+			protected function dodajZadanie_clickHandler(event:MouseEvent):void {
+				env.nauczycielEnv.wybraneZadanie = new Zadanie();
+				initControls();
+			}
+			
+			public override function init():void {
+				var token:RpcToken = env.eduClient.zadanieService.dajMojeZadania();
+				token.newResponder(dajMojeZadania_Handler, env.FaultHandler);
+			}
+			
+			public function dajMojeZadania_Handler(event:ResultEvent, token:RpcToken):void {
+				env.nauczycielEnv.zadaniaList = event.result as ArrayCollection;
+				initControls();
+			}
+
+			private function initControls():void {
+				zadaniePanel.enabled = env.nauczycielEnv.wybraneZadanie != null;
+				
+				if (zadaniePanel.enabled) {
+					typZadania.selectedItem 
+						= Const.TYP_ZADANIA_KONWERTER.itemByVal(
+							env.nauczycielEnv.wybraneZadanie.typZadania);
+					wyborPytan.selectedItem
+						= Const.TYP_WYBORU_KONWERTER.itemByVal(
+							env.nauczycielEnv.wybraneZadanie.typWyboruPytan);
+					switch (env.nauczycielEnv.wybraneZadanie.trybSprawdzenia) {
+						case Const.TYP_SPRAWDZENIA_NATYCHMIAST       : sprNatychmiast.selected = true; break;
+						case Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS : sprNatychmiastWymus.selected = true; break;
+						case Const.TYP_SPRAWDZENIA_PO_ZAKONCZENIU    : sprNaKoncu.selected = true; break; 
+					}
+
+					typZadania.enabled = env.nauczycielEnv.wybraneZadanie.id == '';
+				}
+			}
+
+			protected function zapiszZadanie_clickHandler(event:MouseEvent):void {
+				var token:RpcToken = env.eduClient.zadanieService.zapiszZadanie(env.nauczycielEnv.wybraneZadanie);
+				token.newResponder(zapiszZadanie_Handler, env.FaultHandler);
+			}
+			
+			protected function zapiszZadanie_Handler(event:ResultEvent, token:ZadanieToken):void {
+				env.nauczycielEnv.zapisz_Zadanie(event.result as Zadanie);
+			}
+
+			protected function zadaniaList_changeHandler(event:IndexChangeEvent):void {
+				env.nauczycielEnv.wybraneZadanie = zadaniaList.selectedItem;
+				wczytajZbioryPytan();
+				initControls();
+			}
+			
+			private function wczytajZbioryPytan():void {
+				var token:RpcToken = env.eduClient.pytanieService.wczytajDostepneZbioryTypu(env.nauczycielEnv.wybraneZadanie.typZadania);
+				token.newResponder(wczytajDostepneZbioryTypu_Handler, env.FaultHandler);
+			}
+			
+			private function wczytajDostepneZbioryTypu_Handler(event:ResultEvent, token:RpcToken):void {
+				env.nauczycielEnv.dostepneZbioryPytanTypu = event.result as ArrayCollection;
+			}
+
+			protected function typZadania_changeHandler(event:IndexChangeEvent):void {
+				env.nauczycielEnv.wybraneZadanie.typZadania = (typZadania.selectedItem as KonwerterItem).val;
+				env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan.removeAll();
+				wczytajZbioryPytan();
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:List id='zadaniaList' left="0" top="0" width="180" bottom="0" 
+			dataProvider="{env.nauczycielEnv.zadaniaList}"
+			itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.ZadanieListRenderer"
+			change="zadaniaList_changeHandler(event)"/>
+	<s:Panel width="370" height="439" left="190" top="0" title="Zadanie" id='zadaniePanel'>
+		<mx:Form left="0" top="0" right="0" bottom="0">
+			<mx:FormItem label="Nazwa" width="100%">
+				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybraneZadanie.nazwa}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Typ zadania" width="100%">
+				<s:DropDownList id='typZadania' width="100%" dataProvider="{Const.TYP_ZADANIA_KONWERTER}"
+								change="typZadania_changeHandler(event)"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<s:CheckBox label="Obowiązkowe" width="100%" height="100%"
+							selected="@{env.nauczycielEnv.wybraneZadanie.obowiazkowe}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Dostępne od" width="100%">
+				<mx:DateField width="100%" selectedDate="@{env.nauczycielEnv.wybraneZadanie.dtOd}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Dostępne do" width="100%">
+				<mx:DateField width="100%" selectedDate="@{env.nauczycielEnv.wybraneZadanie.dtDo}"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<mx:HRule height="100%" width="100%"/>
+			</mx:FormItem>
+			<mx:FormItem label="Limit pytań" width="100%">
+				<s:NumericStepper width="100%" stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.limitPytan}" minimum="0" maximum="100"/>
+			</mx:FormItem>
+			<mx:FormItem label="Wybór pytań" width="100%">
+				<s:DropDownList id='wyborPytan' width="100%" dataProvider="{Const.TYP_WYBORU_KONWERTER}"
+								change="{env.nauczycielEnv.wybraneZadanie.typWyboruPytan = (typZadania.selectedItem as KonwerterItem).val}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Limit czasowy" width="100%">
+				<s:NumericStepper width="100%" stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" minimum="0" maximum="100"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<mx:HRule height="100%" width="100%"/>
+			</mx:FormItem>
+			<s:RadioButton id="sprNatychmiast" label="Sprawdz natychmiast" width="100%" height="21" 
+						   change="{env.nauczycielEnv.wybraneZadanie.trybSprawdzenia = Const.TYP_SPRAWDZENIA_NATYCHMIAST}"/>
+			<s:RadioButton id="sprNaKoncu"     label="Sprawdz po zakończeniu" width="100%" height="21"
+						   change="{env.nauczycielEnv.wybraneZadanie.trybSprawdzenia = Const.TYP_SPRAWDZENIA_PO_ZAKONCZENIU}"/>
+			<s:RadioButton id="sprNatychmiastWymus" label="Sprawdz natychmiast i wymagaj prawidłowej odpowiedzi" width="100%" height="21"
+						   change="{env.nauczycielEnv.wybraneZadanie.trybSprawdzenia = Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS}"/>
+			<mx:FormItem width="100%">
+				<s:Button label="Zapisz zmiany" skinClass="pl.twerno.commLib.skins.button.SaveButtonSkin" width="152" 
+						  click="zapiszZadanie_clickHandler(event)"/>
+			</mx:FormItem>
+		</mx:Form>
+	</s:Panel>
+	<s:Button x="188" y="476" label="Dodaj zadanie" 
+			  skinClass="pl.twerno.commLib.skins.button.AddButtonSkin" width="144" 
+			  click="dodajZadanie_clickHandler(event)"/>
+	<s:Button x="188" y="505" label="Usuń zadanie" 
+			  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin" width="144"/>
+	<s:Button x="188" y="534" label="Zadaj zadanie" 
+			  skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" width="144"/>
+	
+	<s:Panel right="0" top="0" left="570" title="Zbiory pytań" height="48%">
+		<s:List top="5" left="5" right="5" bottom="5" 
+				dataProvider="{env.nauczycielEnv.dostepneZbioryPytanTypu}"
+				itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.WybierzZbiorPytanRenderer"/>
+	</s:Panel>
+	<s:Panel height="50%" bottom="0" left="570" right="0" title="Wyróżnienia">
+		<s:List top="5" left="5" right="5" bottom="5"/>
+	</s:Panel>
+</panels:AbstractPanel>

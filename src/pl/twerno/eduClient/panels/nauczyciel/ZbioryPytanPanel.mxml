@@ -7,19 +7,18 @@
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
 			import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
 			import net.twerno.eduClient.consts.Const;
 			import net.twerno.eduClient.responders.RpcResponder;
 			import net.twerno.eduClient.rpc.tokens.RpcToken;
-
+			
 			import pl.twerno.commLib.konwerter.KonwerterItem;
 			import pl.twerno.eduClient.panels.nauczyciel.renderers.PytaniaListRenderer_Posortuj;
 			import pl.twerno.eduClient.panels.nauczyciel.renderers.PytaniaListRenderer_Quiz;
-
+			
 			import spark.events.IndexChangeEvent;
 
 			protected function dodajPytanie_clickHandler(event:MouseEvent):void {
@@ -30,6 +29,7 @@
 
 			protected function pytaniaList_changeHandler(event:IndexChangeEvent):void {
 				var tnWybrane:Boolean = zbioryList.selectedItem != null;
+				env.nauczycielEnv.dostepneZbioryPytanTypu.removeAll();
 				if (tnWybrane)
 					env.nauczycielEnv.wybranyZbiorPytan = (zbioryList.selectedItem as ZbiorPytan).Kopia();
 				else
@@ -45,19 +45,20 @@
 						= Const.TYP_ZADANIA_KONWERTER.itemByVal(
 							env.nauczycielEnv.wybranyZbiorPytan.typZadania);
 					typZadania.enabled = env.nauczycielEnv.wybranyZbiorPytan.id == '';
-					
+
 					if (env.nauczycielEnv.wybranyZbiorPytan.id != '') {
 						var token:RpcToken = 
 							env.eduClient.pytanieService.wczytajPytania(env.nauczycielEnv.wybranyZbiorPytan.id);
 							token.addResponder(new RpcResponder(wczytajPytania_Handler, env.FaultHandler));
 					}
+					env.nauczycielEnv.pytaniaList.removeAll();
+					setCorrectItemRenderer();
 				}
 			}
 
 			protected function wczytajPytania_Handler(event:ResultEvent, token:RpcToken):void {
 				env.nauczycielEnv.pytaniaList = event.result as ArrayCollection;
 				pytaniaPanel.enabled = true;
-				setCorrectItemRenderer();
 			}
 
 			public override function init():void {
@@ -79,10 +80,11 @@
 			}
 			
 			protected function setCorrectItemRenderer():void {
+				pytaniaList.selectedItem = null;
 				if (env.nauczycielEnv.wybranyZbiorPytan.typZadania == Const.TYP_ZADANIA_POSORTUJ)
 					pytaniaList.itemRenderer = new ClassFactory(PytaniaListRenderer_Posortuj);
 				else if (env.nauczycielEnv.wybranyZbiorPytan.typZadania == Const.TYP_ZADANIA_QUIZ)
-					pytaniaList.itemRenderer = new ClassFactory(PytaniaListRenderer_Quiz);				
+					pytaniaList.itemRenderer = new ClassFactory(PytaniaListRenderer_Quiz);
 			}
 
 			protected function zapisz_clickHandler(event:MouseEvent):void {
@@ -93,9 +95,10 @@
 
 			protected function zbiorZapisanyHandler(event:ResultEvent, token:RpcToken):void {
 				var zapisanyZbior:ZbiorPytan = event.result as ZbiorPytan;
-				zapisanyZbior.version++;
 				env.nauczycielEnv.zapiszZbior(zapisanyZbior);
-				env.showDetails(zapisanyZbior);
+				env.nauczycielEnv.pytaniaList.removeAll();
+				env.nauczycielEnv.wybranyZbiorPytan = zapisanyZbior;
+				wybranyZbiorChanged();
 			}
 
 			protected function button1_clickHandler(event:MouseEvent):void {
@@ -116,7 +119,7 @@
 				env.nauczycielEnv.pytaniaList.addItem(new PytanieZamkniete());
 				pytaniaList.selectedIndex = env.nauczycielEnv.pytaniaList.length -1;
 			}
-			
+
 			protected function button3_clickHandler(event:MouseEvent):void {
 				if (pytaniaList.selectedIndex == -1)
 					return;
