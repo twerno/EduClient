@@ -39,7 +39,7 @@
 				env.addEventListener(LoginEvent.LOGGED_OUT, afterLoggedOut);
 				
 				var token:RpcToken = env.eduClient.userService.getLoggedUser();
-				token.addResponder(new RpcResponder(imAlreadyLogged, env.FaultHandler));
+				token.addResponder(new RpcResponder(imAlreadyLogged, null));
 
 				TweenLite.to(loginForm, 0.5, {y:(this.height -loginForm.height)/2, ease:com.greensock.easing.Bounce.easeOut});
 			}
@@ -107,6 +107,10 @@
 	<!--<loginPage:LoginRegisterForm id='loginForm'>
 	</loginPage:LoginRegisterForm>-->
 	<panels:TitleBar enabled.LoggedState="true" enabled="false"/>
+	
 	<panels:MasterPanel id='masterPanel' includeIn="LoggedState" 
 						left="0" top="25" right="0" bottom="0" />
+<!--	<s:Scroller left="0" top="25" right="0" bottom="0" includeIn="LoggedState">
+		<panels:MasterPanel id='masterPanel' left="0" top="0" right="0" bottom="0"/>
+	</s:Scroller>-->
 </s:Application>

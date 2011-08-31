@@ -44,7 +44,7 @@
 
 			protected function loggedInFault(info:FaultEvent, token:RpcToken):void {
 				currentState = "incorrectLogin";
-				RPCErrorHandler.handleError(info);
+				RPCErrorHandler.handleError(info, true);
 			}
 
 			protected function getAccountResult(data:ResultEvent, token:RpcToken):void {

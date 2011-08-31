@@ -2,9 +2,11 @@ package pl.twerno.eduClient.common.Env {
 	import flash.events.EventDispatcher;
 	
 	import mx.containers.Accordion;
+	import mx.controls.Alert;
 	import mx.rpc.events.FaultEvent;
 	
 	import net.twerno.eduClient.EduClient;
+	import net.twerno.eduClient.RO.ROOEntity;
 	import net.twerno.eduClient.RO.user.Account;
 	import net.twerno.eduClient.rpc.tokens.RpcToken;
 	
@@ -18,6 +20,9 @@ package pl.twerno.eduClient.common.Env {
 		
 		[Bindable]
 		public var adminEnv:AdminEnv = new AdminEnv();
+		
+		[Bindable]
+		public var nauczycielEnv:NauczycielEnv = new NauczycielEnv();
 
 		private var _loggedAccount : Account;
 		public function get account():Account {return _loggedAccount}
@@ -29,6 +34,7 @@ package pl.twerno.eduClient.common.Env {
 		
 		public function logout():void {
 			adminEnv.clean();
+			nauczycielEnv.clean();
 			
 //			if (!eduClient.userService.authenticated()) {
 //				return
@@ -40,6 +46,7 @@ package pl.twerno.eduClient.common.Env {
 		}
 
 		public function bladPolaczenia():void {
+			Alert.show("Błąd połączenia");
 			eduClient.otwartePolaczenie = false;
 			logout();
 		}
@@ -47,6 +54,11 @@ package pl.twerno.eduClient.common.Env {
 		public function FaultHandler(info:FaultEvent, token:RpcToken):void {
 			RPCErrorHandler.handleError(info, true);
 		}
+		
+		public function showDetails(rooEntity:ROOEntity):void {
+			Alert.show(rooEntity.detailedToString());
+		}
+		
 		
 		private static var _env : Env;
 		public static function get get():Env {

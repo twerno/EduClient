@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true"
+				minWidth="305" minHeight="180">
+	<fx:Script>
+		<![CDATA[
+			import net.twerno.eduClient.RO.pytanie.OdpPytanieZamkniete;
+			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
+			import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
+			
+			import pl.twerno.commLib.Images;
+
+			protected function dodaj_clickHandler(event:MouseEvent):void {
+				var odp:OdpPytanieZamkniete = new OdpPytanieZamkniete();
+				odp.pytanieZamkniete = (data as PytanieZamkniete);
+				(data as PytanieZamkniete).odpowiedzi.addItem(odp);
+				pytaniaZamkniete.selectedItem = odp;
+			}
+
+			protected function usun_clickHandler(event:MouseEvent):void {
+				var odp:OdpPytanieZamkniete = pytaniaZamkniete.selectedItem;
+				if (!odp) return;
+
+				(data as PytanieZamkniete).odpowiedzi.removeItemAt(
+					(data as PytanieZamkniete).odpowiedzi.getItemIndex(odp));
+			}
+		]]>
+	</fx:Script>
+
+	<mx:Image width="16" height="16" y='4' left="5" source="{Images.get().brickImg}"/>
+	<s:TextInput y="2" left="25" right="5" text="@{(data as PytanieZamkniete).trescPytania}" borderVisible="false" contentBackgroundColor="#FFFE99"/>
+
+	<s:List id='pytaniaZamkniete'
+			y="33" minHeight="50" left="10" right="10" borderVisible="false"
+			dataProvider="{(data as PytanieZamkniete).odpowiedzi}"
+			itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.QuiZOdpowiedzRenderer"/>
+	<s:Button y="150" label="Dodaj odpowiedź" left="10"
+			  skinClass="pl.twerno.commLib.skins.button.AddButtonSkin"
+			  click="dodaj_clickHandler(event)"/>
+	<s:Button x="155" y="150" label="Usuń odpowiedź" 
+			  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin"
+			  click="usun_clickHandler(event)"/>
+</s:ItemRenderer>

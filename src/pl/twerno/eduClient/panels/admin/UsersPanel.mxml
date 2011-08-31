@@ -146,7 +146,7 @@
 
 		<mx:Form top="0" left="0" right="0" bottom="0">
 			<mx:FormItem label="Nazwa" width="100%">
-				<s:TextInput width="100%" enabled="false" text="{env.adminEnv.selectedUser.username}"/>
+				<s:TextInput width="100%" enabled="false" text="@{env.adminEnv.selectedUser.username}"/>
 			</mx:FormItem>
 			<mx:FormItem label="Hasło" width="100%">
 				<s:TextInput width="100%" id="noweHaslo"/>

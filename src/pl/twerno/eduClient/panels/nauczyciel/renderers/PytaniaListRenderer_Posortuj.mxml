@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true"
+				minWidth="305">
+	<fx:Script>
+		<![CDATA[
+			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
+			
+			import pl.twerno.commLib.Images;
+		]]>
+	</fx:Script>
+	
+	<mx:Image width="16" height="16" y="4" left="5" source="{Images.get().brickImg}"/>
+	<s:TextInput y="2" left="25" right="135" 
+				 borderVisible="false" contentBackgroundColor="#FFFE99"
+				 text="@{(data as PytanieZamkniete).trescPytania}"/>
+	<s:TextInput y="2" right="5" width="125" 
+				 borderVisible="false" contentBackgroundColor="#DDFFA2"
+				 text="@{(data as PytanieZamkniete).kategoria}"/>	
+</s:ItemRenderer>

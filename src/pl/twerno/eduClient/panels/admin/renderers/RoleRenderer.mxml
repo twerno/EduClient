@@ -10,9 +10,14 @@
 			import mx.events.FlexEvent;
 			
 			import net.twerno.eduClient.RO.user.Account;
+			import net.twerno.eduClient.consts.Const;
 
 			protected function mxdatagriditemrenderer1_dataChangeHandler(event:FlexEvent):void {
-				lblData.text = ((data as Account).roles as ArrayCollection).toArray().join(', ');;
+				var roles:Array = new Array();
+				for each (var role:String in (data as Account).roles)
+					roles.push(Const.ROLE_KONWERTER.val2Label(role));
+
+				lblData.text = roles.join(', ');;
 			}
 		]]>
 	</fx:Script>

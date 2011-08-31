@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true">
+	<fx:Script>
+		<![CDATA[
+			import net.twerno.eduClient.RO.pytanie.OdpPytanieZamkniete;
+			
+			import pl.twerno.commLib.Images;
+		]]>
+	</fx:Script>
+	
+	
+	<mx:Image width="16" height="16" verticalCenter="0" left="5" source="{Images.get().brick_goImg}"/>
+	<s:TextInput y="2" left="25" minWidth="100" right="90" text="@{(data as OdpPytanieZamkniete).stOdpowiedz}" borderVisible="false" contentBackgroundColor="#CBF9FF"/>
+	<s:CheckBox label="Poprawna" width="75" right="5" selected="@{(data as OdpPytanieZamkniete).tnPoprawna}" height="100%"/>
+
+</s:ItemRenderer>

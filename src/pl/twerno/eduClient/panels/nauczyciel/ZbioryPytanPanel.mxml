@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panels:AbstractPanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:panels="pl.twerno.eduClient.panels.*" 
+					  width="656" height="386">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+
+			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
+			import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
+			import net.twerno.eduClient.consts.Const;
+			import net.twerno.eduClient.responders.RpcResponder;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+
+			import pl.twerno.commLib.konwerter.KonwerterItem;
+			import pl.twerno.eduClient.panels.nauczyciel.renderers.PytaniaListRenderer_Posortuj;
+			import pl.twerno.eduClient.panels.nauczyciel.renderers.PytaniaListRenderer_Quiz;
+
+			import spark.events.IndexChangeEvent;
+
+			protected function dodajPytanie_clickHandler(event:MouseEvent):void {
+				env.nauczycielEnv.wybranyZbiorPytan = new ZbiorPytan();
+				env.nauczycielEnv.pytaniaList = new ArrayCollection();
+				wybranyZbiorChanged();
+			}
+
+			protected function pytaniaList_changeHandler(event:IndexChangeEvent):void {
+				var tnWybrane:Boolean = zbioryList.selectedItem != null;
+				if (tnWybrane)
+					env.nauczycielEnv.wybranyZbiorPytan = (zbioryList.selectedItem as ZbiorPytan).Kopia();
+				else
+					env.nauczycielEnv.wybranyZbiorPytan = null;
+				wybranyZbiorChanged();
+			}
+
+			protected function wybranyZbiorChanged():void {
+				pytaniaPanel.enabled = false;
+				zbPanel.enabled = env.nauczycielEnv.wybranyZbiorPytan != null;
+				if (zbPanel.enabled) {
+					typZadania.selectedItem 
+						= Const.TYP_ZADANIA_KONWERTER.itemByVal(
+							env.nauczycielEnv.wybranyZbiorPytan.typZadania);
+					typZadania.enabled = env.nauczycielEnv.wybranyZbiorPytan.id == '';
+					
+					if (env.nauczycielEnv.wybranyZbiorPytan.id != '') {
+						var token:RpcToken = 
+							env.eduClient.pytanieService.wczytajPytania(env.nauczycielEnv.wybranyZbiorPytan.id);
+							token.addResponder(new RpcResponder(wczytajPytania_Handler, env.FaultHandler));
+					}
+				}
+			}
+
+			protected function wczytajPytania_Handler(event:ResultEvent, token:RpcToken):void {
+				env.nauczycielEnv.pytaniaList = event.result as ArrayCollection;
+				pytaniaPanel.enabled = true;
+				setCorrectItemRenderer();
+			}
+
+			public override function init():void {
+				pytaniaList_changeHandler(null);
+				var token:RpcToken = env.eduClient.pytanieService.wczytajDostepneZbiory();
+				token.addResponder(new RpcResponder(zbioryWczytaneHandler, env.FaultHandler));
+			}
+
+			protected function zbioryWczytaneHandler(event:ResultEvent, token:RpcToken):void {
+				env.nauczycielEnv.zbioryPytanList = event.result as ArrayCollection;
+			}
+
+			protected function typZadania_changeHandler(event:IndexChangeEvent):void {
+				env.nauczycielEnv.wybranyZbiorPytan.typZadania = (typZadania.selectedItem as KonwerterItem).val;
+				usunBtn.enabled = zbioryList.selectedItem != null;
+				env.nauczycielEnv.pytaniaList.removeAll();
+				setCorrectItemRenderer();
+				pytaniaPanel.enabled = env.nauczycielEnv.wybranyZbiorPytan.typZadania != '';
+			}
+			
+			protected function setCorrectItemRenderer():void {
+				if (env.nauczycielEnv.wybranyZbiorPytan.typZadania == Const.TYP_ZADANIA_POSORTUJ)
+					pytaniaList.itemRenderer = new ClassFactory(PytaniaListRenderer_Posortuj);
+				else if (env.nauczycielEnv.wybranyZbiorPytan.typZadania == Const.TYP_ZADANIA_QUIZ)
+					pytaniaList.itemRenderer = new ClassFactory(PytaniaListRenderer_Quiz);				
+			}
+
+			protected function zapisz_clickHandler(event:MouseEvent):void {
+				//TODO Sprawdzie
+				var token:RpcToken = env.eduClient.pytanieService.zapiszZbiorPytan(env.nauczycielEnv.wybranyZbiorPytan, env.nauczycielEnv.pytaniaList);
+				token.addResponder(new RpcResponder(zbiorZapisanyHandler, env.FaultHandler));
+			}
+
+			protected function zbiorZapisanyHandler(event:ResultEvent, token:RpcToken):void {
+				var zapisanyZbior:ZbiorPytan = event.result as ZbiorPytan;
+				zapisanyZbior.version++;
+				env.nauczycielEnv.zapiszZbior(zapisanyZbior);
+				env.showDetails(zapisanyZbior);
+			}
+
+			protected function button1_clickHandler(event:MouseEvent):void {
+				var token:RpcToken = env.eduClient.pytanieService.zapiszZbiorPytan(new ZbiorPytan(), new ArrayCollection());
+				token.addResponder(new RpcResponder(zbiorZapisanyHandler, env.FaultHandler));
+			}
+
+			protected function usunBtn_clickHandler(event:MouseEvent):void {
+				var token:RpcToken = env.eduClient.pytanieService.usunZbiorPytan(env.nauczycielEnv.wybranyZbiorPytan.id);
+				token.addResponder(new RpcResponder(zbiorUsunietyHandler, env.FaultHandler));
+			}
+			
+			protected function zbiorUsunietyHandler(event:ResultEvent, token:RpcToken):void {
+				env.nauczycielEnv.usunZbior(event.result as String);
+			}
+
+			protected function button2_clickHandler(event:MouseEvent):void {
+				env.nauczycielEnv.pytaniaList.addItem(new PytanieZamkniete());
+				pytaniaList.selectedIndex = env.nauczycielEnv.pytaniaList.length -1;
+			}
+			
+			protected function button3_clickHandler(event:MouseEvent):void {
+				if (pytaniaList.selectedIndex == -1)
+					return;
+				(pytaniaList.selectedItem as PytanieZamkniete).usuniety = true;
+			}
+
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+	</fx:Declarations>
+	<s:List id='zbioryList' left="0" top="0" bottom="0" width="180"
+			dataProvider="{env.nauczycielEnv.zbioryPytanList}"
+			change="pytaniaList_changeHandler(event)"
+			itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.ZbiorPytanListRenderer"/>
+	<s:Panel x="195" y="0" width="232" height="201" title="Zbiór pytań" id='zbPanel'>
+		<mx:Form left="0" top="0" bottom="0" right="0">
+			<mx:FormItem label="Nazwa" width="100%">
+				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.opis}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Typ zadania" width="100%">
+				<s:DropDownList id='typZadania' width="100%" dataProvider="{Const.TYP_ZADANIA_KONWERTER}"
+								change="typZadania_changeHandler(event)"/>
+			</mx:FormItem>
+			<mx:FormItem label="Kategoria" width="100%">
+				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.kategoria}"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<s:CheckBox label="publiczny" width="100%" height="100%"
+							selected="@{env.nauczycielEnv.wybranyZbiorPytan.isPublic}"/>
+			</mx:FormItem>
+			<mx:FormItem width="100%">
+				<s:Button label="Zapisz" skinClass="pl.twerno.commLib.skins.button.SaveButtonSkin" 
+						  click="zapisz_clickHandler(event)"/>
+			</mx:FormItem>
+		</mx:Form>
+	</s:Panel>
+	<s:Panel title="Pytania" left="440" bottom="0" top="0" right="0" id='pytaniaPanel'>
+		<s:List left="10" top="10" bottom="45" right="10" id='pytaniaList'
+				itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.PytaniaListRenderer_Quiz" 
+				dataProvider="{env.nauczycielEnv.pytaniaList}"/>
+		<s:Button label="Dodaj pytanie" 
+				  skinClass="pl.twerno.commLib.skins.button.AddButtonSkin" 
+				  bottom="10" left="10" 
+				  click="button2_clickHandler(event)"/>
+		<s:Button x="135" label="Usuń pytanie" bottom="10"
+				  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin" 
+				  click="button3_clickHandler(event)"/>
+	</s:Panel>
+	<s:Button label="Dodaj zbiór" x="195" y="210"
+			  skinClass="pl.twerno.commLib.skins.button.AddButtonSkin"  
+			  click="dodajPytanie_clickHandler(event)"/>
+	<s:Button x="195" y="245" label="Usuń zbiór" width="103" id='usunBtn'
+			  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin"
+			  click="usunBtn_clickHandler(event)"/>
+</panels:AbstractPanel>
