@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true" height="21">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import net.twerno.eduClient.RO.user.Grupa;
+			
+			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.common.Env.Env;
+			
+			[Bindable]
+			private var env:Env = Env.get;
+
+			protected function chBox_changeHandler(event:Event):void {
+				if (chBox.selected) {
+					//dodaj grupe do rozwiazania
+					env.nauczycielEnv.wybraneGrupyDoZadania.addItem((data as Grupa).id);
+				} else {
+					// usun grupe z rozwiazania
+					var idx:int = env.nauczycielEnv.wybraneGrupyDoZadania.getItemIndex((data as Grupa).id);
+					env.nauczycielEnv.wybraneGrupyDoZadania.removeItemAt(idx);
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:Image verticalCenter="0" left="5" width="16" height="16"
+			  source="{Images.get().groupImg}"/>
+	<s:CheckBox id='chBox' top="0" bottom="0" left="25" right="5" 
+				change="chBox_changeHandler(event)"
+				label="{(data as Grupa).nazwa}"/>
+
+</s:ItemRenderer>

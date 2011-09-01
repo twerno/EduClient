@@ -18,7 +18,24 @@ package pl.twerno.eduClient.common.Env {
 		
 		public var wybraneZadanie:Zadanie;	
 		
-		public var dostepneZbioryPytanTypu:ArrayCollection = new ArrayCollection();;
+		public var dostepneZbioryPytanTypu:ArrayCollection = new ArrayCollection();
+		
+		public var wybraneGrupyDoZadania:ArrayCollection = new ArrayCollection();
+		
+		public var zadaneZadaniaList:ArrayCollection = new ArrayCollection();
+		
+		
+		public function clean():void {
+			zbioryPytanList.removeAll();
+			pytaniaList.removeAll();
+			wybranyZbiorPytan = null;
+			wybraneZadanie = null;
+			zadaniaList.removeAll();
+			dostepneZbioryPytanTypu.removeAll();
+			wybraneGrupyDoZadania.removeAll();
+			zadaneZadaniaList.removeAll();
+		}
+
 		
 		public function zapiszZbior(zbiorPytan:ZbiorPytan):void {
 			zbioryPytanList.disableAutoUpdate();
@@ -66,15 +83,6 @@ package pl.twerno.eduClient.common.Env {
 		}
 		
 		public function NauczycielEnv() {
-		}
-		
-		public function clean():void {
-			zbioryPytanList.removeAll();
-			pytaniaList.removeAll();
-			wybranyZbiorPytan = null;
-//			wybranePytanie    = null;
-//			wybranePytanieIdx = -1;
-			
 		}
 	}
 }

@@ -8,6 +8,7 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
 			import net.twerno.eduClient.RO.zadanie.Zadanie;
@@ -86,6 +87,18 @@
 				wczytajZbioryPytan();
 			}
 
+			protected function zadajZadanie_clickHandler(event:MouseEvent):void {
+				var zadanie:Zadanie = zadaniaList.selectedItem as Zadanie;
+				if (!zadanie) return;
+				if (zadanie.id == '') {
+					Alert.show("Zapisz zadanie zanim je zadasz");
+					return;
+				}
+				
+				var win:ZadajZadanieWindow = PopUpManager.createPopUp(this, ZadajZadanieWindow, true) as ZadajZadanieWindow;
+				win.init(zadanie);
+				PopUpManager.centerPopUp(win);
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -148,7 +161,8 @@
 	<s:Button x="188" y="505" label="Usuń zadanie" 
 			  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin" width="144"/>
 	<s:Button x="188" y="534" label="Zadaj zadanie" 
-			  skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" width="144"/>
+			  skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" width="144"
+			  click="zadajZadanie_clickHandler(event)"/>
 	
 	<s:Panel right="0" top="0" left="570" title="Zbiory pytań" height="48%">
 		<s:List top="5" left="5" right="5" bottom="5" 

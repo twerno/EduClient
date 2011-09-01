@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   width="229" height="283"
+			   close="closeHandler(event)" title="Zadaj zadanie">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.twerno.eduClient.RO.zadanie.Zadanie;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			
+			import pl.twerno.eduClient.common.Env.Env;
+
+			[Bindable]
+			private var env:Env = Env.get;
+
+			private var zadanie:Zadanie;
+
+			public function init(zadanie:Zadanie):void {
+				env.nauczycielEnv.wybraneGrupyDoZadania.removeAll();
+				this.zadanie = zadanie;
+			}
+
+			protected function closeHandler(event:CloseEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+
+			protected function zadajZadanie_clickHandler(event:MouseEvent):void {
+				if (env.nauczycielEnv.wybraneGrupyDoZadania.length == 0) {
+					Alert.show("Wybierz grupy");
+					return;
+				}
+
+				var token:RpcToken = env.eduClient.zadanieService.zadajZadanie(zadanie.id, env.nauczycielEnv.wybraneGrupyDoZadania);
+				token.newResponder(zadajZadanie_Handler, env.FaultHandler);
+			}
+			
+			private function zadajZadanie_Handler(event:ResultEvent, token:RpcToken):void {
+				Alert.show("Zadanie zostało zadane.");
+				closeHandler(null);
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:List id="grupyList" y="30" width="207" height="180" right="10"
+			dataProvider="{env.account.grupy}"
+			itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.GrupyDoZadaniaRenderer"/>
+	<s:Label x="10" y="10" text="Zadaj zadanie następującym grupom:"/>
+	<s:Button x="10" y="218" label="Zadaj" 
+			  skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" width="95"
+			  click="zadajZadanie_clickHandler(event)"/>
+	<s:Button y="218" label="Anuluj" 
+			  click="{closeHandler(null)}"
+			  skinClass="pl.twerno.commLib.skins.button.CanceButtonSkin" width="95" right="10"/>
+</s:TitleWindow>

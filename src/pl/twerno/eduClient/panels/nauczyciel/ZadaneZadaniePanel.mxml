@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panels:AbstractPanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:panels="pl.twerno.eduClient.panels.*" 
+					  width="400" height="300">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+
+			public override function init():void {
+				var token:RpcToken = env.eduClient.zadanieService.dajZadanePrzezeMnie();
+				token.newResponder(dajZadanePrzezeMnieHandler, env.FaultHandler);
+			}
+				
+			private function dajZadanePrzezeMnieHandler(event:ResultEvent, token:RpcToken):void {
+				env.nauczycielEnv.zadaneZadaniaList = event.result as ArrayCollection;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:DataGrid left="0" top="0" right="0" bottom="0"
+				 dataProvider="{env.nauczycielEnv.zadaneZadaniaList}">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Nazwa" dataField="nazwa"/>
+		</mx:columns>
+	</mx:DataGrid>
+
+
+</panels:AbstractPanel>
