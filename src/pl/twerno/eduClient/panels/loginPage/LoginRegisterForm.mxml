@@ -22,8 +22,8 @@
 
 			import pl.twerno.commLib.Images;
 			import pl.twerno.eduClient.common.Colors;
-			import pl.twerno.eduClient.common.Env.Env;
-			import pl.twerno.eduClient.common.Env.RPCErrorHandler;
+			import pl.twerno.eduClient.Env.Env;
+			import pl.twerno.eduClient.Env.RPCErrorHandler;
 
 			private var env:Env = Env.get;
 

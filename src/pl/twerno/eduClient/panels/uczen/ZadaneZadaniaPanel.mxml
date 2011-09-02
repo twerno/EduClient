@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panels:AbstractPanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:panels="pl.twerno.eduClient.panels.*" 
+					  width="400" height="300">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			
+			public override function init():void {
+				var token:RpcToken = env.eduClient.zadanieService.dajZadaneMi();
+				token.newResponder(dajZadaneMiHandler, env.FaultHandler);
+			}
+			
+			private function dajZadaneMiHandler(event:ResultEvent, token:RpcToken):void {
+				env.uczenEnv.zadaniaList = event.result as ArrayCollection;
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:List id='zadaniaList' left="0" top="0" bottom="0" right="0"
+			dataProvider="{env.uczenEnv.zadaniaList}"
+			itemRenderer="pl.twerno.eduClient.panels.uczen.renderer.ZadaneZadanieUczenRenderer"/>
+</panels:AbstractPanel>

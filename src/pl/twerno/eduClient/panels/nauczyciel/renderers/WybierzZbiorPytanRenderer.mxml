@@ -15,7 +15,7 @@
 			import net.twerno.eduClient.RO.zadanie.Zadanie_ZbiorPytan;
 			
 			import pl.twerno.commLib.Images;
-			import pl.twerno.eduClient.common.Env.Env;
+			import pl.twerno.eduClient.Env.Env;
 
 			[Bindable]
 			private var env:Env = Env.get;
@@ -60,7 +60,7 @@
 	<mx:Image y="4" left="5" width="16" height="16"
 			  source="{Images.get().pluginImg}"/>
 	<s:CheckBox id='chBox' top="0" height="25" left="25" right="5" 
-				label="{(data as ZbiorPytan).opis +' (' +(data as ZbiorPytan).kategoria +')'}"
+				label="{(data as ZbiorPytan).opis +' (' +(data as ZbiorPytan).przedmiot +')'}"
 				change="chBox_changeHandler(event)"/>
 	<s:NumericStepper id='ns_min' x="197" y="27" includeIn="Selected" width="65" 
 					  minimum="0" stepSize="1"

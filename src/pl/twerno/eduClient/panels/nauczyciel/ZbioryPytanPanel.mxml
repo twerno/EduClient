@@ -144,8 +144,8 @@
 				<s:DropDownList id='typZadania' width="100%" dataProvider="{Const.TYP_ZADANIA_KONWERTER}"
 								change="typZadania_changeHandler(event)"/>
 			</mx:FormItem>
-			<mx:FormItem label="Kategoria" width="100%">
-				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.kategoria}"/>
+			<mx:FormItem label="Przedmiot" width="100%">
+				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.przedmiot}"/>
 			</mx:FormItem>
 			<mx:FormItem width="100%">
 				<s:CheckBox label="publiczny" width="100%" height="100%"

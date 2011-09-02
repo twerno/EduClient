@@ -1,4 +1,4 @@
-package pl.twerno.eduClient.common.Env {
+package pl.twerno.eduClient.UserEnv {
 	import mx.collections.ArrayCollection;
 	
 	import net.twerno.eduClient.RO.user.Account;

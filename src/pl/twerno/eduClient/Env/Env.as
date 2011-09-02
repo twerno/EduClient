@@ -1,4 +1,4 @@
-package pl.twerno.eduClient.common.Env {
+package pl.twerno.eduClient.Env {
 	import flash.events.EventDispatcher;
 	
 	import mx.containers.Accordion;
@@ -10,6 +10,9 @@ package pl.twerno.eduClient.common.Env {
 	import net.twerno.eduClient.RO.user.Account;
 	import net.twerno.eduClient.rpc.tokens.RpcToken;
 	
+	import pl.twerno.eduClient.UserEnv.AdminEnv;
+	import pl.twerno.eduClient.UserEnv.NauczycielEnv;
+	import pl.twerno.eduClient.UserEnv.UczenEnv;
 	import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 
 	public class Env extends EventDispatcher {
@@ -23,6 +26,9 @@ package pl.twerno.eduClient.common.Env {
 		
 		[Bindable]
 		public var nauczycielEnv:NauczycielEnv = new NauczycielEnv();
+		
+		[Bindable]
+		public var uczenEnv:UczenEnv = new UczenEnv();
 
 		private var _loggedAccount : Account;
 		public function get account():Account {return _loggedAccount}
@@ -34,6 +40,7 @@ package pl.twerno.eduClient.common.Env {
 		
 		public function logout():void {
 			adminEnv.clean();
+			uczenEnv.clean();
 			nauczycielEnv.clean();
 			
 //			if (!eduClient.userService.authenticated()) {

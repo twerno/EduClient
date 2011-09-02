@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true" height="35"
+				dataChange="itemrenderer1_dataChangeHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie;
+			
+			import pl.twerno.commLib.Images;
+			
+			private function getObowiazkoweStr():String {
+				if (data == null) return '';
+				var result:String = 'obowiązkowe: ' +(((data as ZadaneZadanie).obowiazkowe) ? 'TAK' : 'NIE'); 
+				return result;
+			}
+			
+			private function getDtDo():String {
+				if (data == null) return '';
+				if ((data as ZadaneZadanie).dtDo == null)
+					return 'Brak terminu';
+
+				return 'termin upływa: ' +(data as ZadaneZadanie).dtDo.toDateString();
+			}
+
+			protected function itemrenderer1_dataChangeHandler(event:FlexEvent):void {
+				obowiazkowe.text = getObowiazkoweStr();
+				termin.text = getDtDo();
+			}
+
+		]]>
+	</fx:Script>
+
+	<mx:Image verticalCenter="0" left="15" source="{Images.get().houseImg}"/>
+	<s:Label verticalCenter="2" left="40" width="180" text="{(data as ZadaneZadanie).nazwa}"/>
+	<s:Label id='obowiazkowe' verticalCenter="2" left="220" width="125" text=""/>
+	<s:Label id='termin' verticalCenter="2" left="355" width="125" text=""/>
+	
+</s:ItemRenderer>

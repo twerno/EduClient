@@ -1,4 +1,4 @@
-package pl.twerno.eduClient.common.Env {
+package pl.twerno.eduClient.Env {
 	import mx.controls.Alert;
 	import mx.rpc.events.FaultEvent;
 

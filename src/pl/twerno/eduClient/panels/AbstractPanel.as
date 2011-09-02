@@ -3,7 +3,7 @@ package pl.twerno.eduClient.panels {
 	
 	import mx.events.FlexEvent;
 	
-	import pl.twerno.eduClient.common.Env.Env;
+	import pl.twerno.eduClient.Env.Env;
 	
 	import spark.components.Group;
 	import spark.effects.Fade;

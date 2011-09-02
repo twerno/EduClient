@@ -22,7 +22,7 @@
 			
 			import pl.twerno.commLib.helpers.StringHelper;
 			import pl.twerno.commLib.skins.button.AddButtonSkin;
-			import pl.twerno.eduClient.common.Env.Env;
+			import pl.twerno.eduClient.Env.Env;
 			import pl.twerno.eduClient.common.renderers.TakNieRenderer;
 			import pl.twerno.eduClient.panels.admin.renderers.GrupyRenderer;
 			import pl.twerno.eduClient.panels.admin.renderers.NalezyDoGrupyRenderer;

@@ -18,13 +18,14 @@
 			import net.twerno.eduClient.helper.UserHelper;
 			
 			import pl.twerno.commLib.Images;
-			import pl.twerno.eduClient.common.Env.Env;
+			import pl.twerno.eduClient.Env.Env;
 			import pl.twerno.eduClient.panels.admin.GroupsPanel;
 			import pl.twerno.eduClient.panels.admin.UsersPanel;
 			import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 			import pl.twerno.eduClient.panels.nauczyciel.ZadaneZadaniePanel;
 			import pl.twerno.eduClient.panels.nauczyciel.ZadaniaPanel;
 			import pl.twerno.eduClient.panels.nauczyciel.ZbioryPytanPanel;
+			import pl.twerno.eduClient.panels.uczen.ZadaneZadaniaPanel;
 			
 			import spark.events.IndexChangeEvent;
 
@@ -54,16 +55,16 @@
 
 			public function init():void {
 				if (env.account.hasRole(Const.ROLE_ADMIN)) {
-					panels.addItem(new MenuItem('Użytkownicy', Images.get().user_greenImg, new UsersPanel()));
-					panels.addItem(new MenuItem('Grupy', Images.get().groupImg, new GroupsPanel()));
+					addPanel('Użytkownicy', Images.get().user_greenImg, new UsersPanel());
+					addPanel('Grupy',       Images.get().groupImg,      new GroupsPanel());
 				}
 				if (env.account.hasRole(Const.ROLE_NAUCZYCIEL)) {
-					panels.addItem(new MenuItem('Zbiory pytań', Images.get().pluginImg, new ZbioryPytanPanel()));
-					addPanel('Zadania', Images.get().script_editImg, new ZadaniaPanel());
-					addPanel('Zadane zadania', Images.get().scriptImg, new ZadaneZadaniePanel());
+					addPanel('Zadane zadania', Images.get().houseImg,       new ZadaneZadaniePanel());
+					addPanel('Zadania',        Images.get().script_editImg, new ZadaniaPanel());
+					addPanel('Zbiory pytań',   Images.get().pluginImg,      new ZbioryPytanPanel());
 				}
 				if (env.account.hasRole(Const.ROLE_UCZEN)) {
-					
+					addPanel('Zadania', Images.get().houseImg, new ZadaneZadaniaPanel());
 				}					
 
 				masterPanelMenu.selectedIndex = 0;

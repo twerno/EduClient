@@ -1,4 +1,4 @@
-package pl.twerno.eduClient.common.Env {
+package pl.twerno.eduClient.UserEnv {
 	public interface IUserEnv {
 		function clean():void;
 	}

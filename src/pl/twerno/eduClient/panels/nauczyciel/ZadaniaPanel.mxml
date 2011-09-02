@@ -121,6 +121,10 @@
 				<s:CheckBox label="Obowiązkowe" width="100%" height="100%"
 							selected="@{env.nauczycielEnv.wybraneZadanie.obowiazkowe}"/>
 			</mx:FormItem>
+			<mx:FormItem label="Minimalny wynik" width="100%">
+				<s:NumericStepper value="@{env.nauczycielEnv.wybraneZadanie.minimalnyWynik}" 
+					width="100%" minimum="0" maximum="100" stepSize="1"/>
+			</mx:FormItem>
 			<mx:FormItem label="Dostępne od" width="100%">
 				<mx:DateField width="100%" selectedDate="@{env.nauczycielEnv.wybraneZadanie.dtOd}"/>
 			</mx:FormItem>
