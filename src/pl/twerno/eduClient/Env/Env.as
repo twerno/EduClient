@@ -66,7 +66,7 @@ package pl.twerno.eduClient.Env {
 		}
 		
 		public function FaultHandler(info:FaultEvent, token:RpcToken):void {
-			RPCErrorHandler.handleError(info, true);
+			RPCErrorHandler.handleError(info, token, true);
 		}
 		
 		public function showDetails(rooEntity:ROOEntity):void {
