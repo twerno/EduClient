@@ -23,6 +23,7 @@
 
 			protected function dodajPytanie_clickHandler(event:MouseEvent):void {
 				env.nauczycielEnv.wybranyZbiorPytan = new ZbiorPytan();
+				env.nauczycielEnv.wybranyZbiorPytan.autorId = env.account.id;
 				env.nauczycielEnv.pytaniaList = new ArrayCollection();
 				wybranyZbiorChanged();
 			}
@@ -39,7 +40,11 @@
 
 			protected function wybranyZbiorChanged():void {
 				pytaniaPanel.enabled = false;
-				zbPanel.enabled = env.nauczycielEnv.wybranyZbiorPytan != null;
+				zbPanel.enabled         = env.nauczycielEnv.wybranyZbiorPytan != null;
+				dodajPytanieBtn.enabled = zbPanel.enabled;
+				usunPytanieBtn.enabled  = zbPanel.enabled;
+				usunBtn.enabled         = zbPanel.enabled;
+				
 				if (zbPanel.enabled) {
 					typZadania.selectedItem 
 						= Const.TYP_ZADANIA_KONWERTER.itemByVal(
@@ -54,6 +59,15 @@
 					env.nauczycielEnv.pytaniaList.removeAll();
 					setCorrectItemRenderer();
 				}
+
+				if (zbPanel.enabled && 
+					env.nauczycielEnv.wybranyZbiorPytan.autorId != env.account.id) {
+					zbPanel.enabled = false;	
+					dodajPytanieBtn.enabled = false;
+					usunPytanieBtn.enabled  = false;
+					usunBtn.enabled         = false;
+				}
+				
 			}
 
 			protected function wczytajPytania_Handler(event:ResultEvent, token:RpcToken):void {
@@ -164,10 +178,10 @@
 		<s:Button label="Dodaj pytanie" 
 				  skinClass="pl.twerno.commLib.skins.button.AddButtonSkin" 
 				  bottom="10" left="10" 
-				  click="button2_clickHandler(event)"/>
+				  click="button2_clickHandler(event)" id="dodajPytanieBtn"/>
 		<s:Button x="135" label="Usuń pytanie" bottom="10"
 				  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin" 
-				  click="button3_clickHandler(event)"/>
+				  click="button3_clickHandler(event)" id="usunPytanieBtn"/>
 	</s:Panel>
 	<s:Button label="Dodaj zbiór" x="195" y="210"
 			  skinClass="pl.twerno.commLib.skins.button.AddButtonSkin"  

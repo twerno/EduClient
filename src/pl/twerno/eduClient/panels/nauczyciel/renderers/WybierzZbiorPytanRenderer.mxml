@@ -63,7 +63,7 @@
 				label="{(data as ZbiorPytan).opis +' (' +(data as ZbiorPytan).przedmiot +')'}"
 				change="chBox_changeHandler(event)"/>
 	<s:NumericStepper id='ns_min' x="197" y="27" includeIn="Selected" width="65" 
-					  minimum="0" stepSize="1"
+					  minimum="1" stepSize="1"
 					  value="@{zzp.coNajmniej}"/>
 	<s:NumericStepper id='ns_max' x="373" y="27" includeIn="Selected" width="65" 
 					  minimum="{ns_min.value}" stepSize="1"

@@ -3,7 +3,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 width="578" height="300"
-		 creationComplete="group1_creationCompleteHandler(event)">
+		 creationComplete="masterPanel_creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[			
 			import mx.collections.ArrayCollection;
@@ -75,9 +75,10 @@
 				panels.addItem(new MenuItem(label, img, panel));
 			}
 
-			protected function group1_creationCompleteHandler(event:FlexEvent):void {
+			protected function masterPanel_creationCompleteHandler(event:FlexEvent):void {
 				env.addEventListener(LoginEvent.LOGGED_OUT, loggedOut_handler);
 				masterPanelMenu_changeHandler(null);
+				env.masterPanel = this;
 			}
 			
 			protected function loggedOut_handler(event: LoginEvent):void {
@@ -89,12 +90,15 @@
 	<fx:Declarations>
 	</fx:Declarations>
 
+	<mx:Image source="@Embed(source='assets/TREES.svg')" bottom="10" height="163" left="10" width="150"/>
+	<!--<mx:Image x="10" y="10" source="@Embed(source='assets/Weather.png')"/>-->
+	
 	<s:List id='masterPanelMenu'
-			left="10" top="10" 
+			left="10" top="35" 
 			width="150" bottom="10" 
 			dataProvider="{panels}"
 			change="masterPanelMenu_changeHandler(event)"
-			itemRenderer="pl.twerno.eduClient.panels.MasterPanelMenuRenderer"></s:List>
+			itemRenderer="pl.twerno.eduClient.panels.MasterPanelMenuRenderer" borderVisible="false" focusColor="#70EE79" selectionColor="#B2FEB0" rollOverColor="#E7EFCE" contentBackgroundAlpha="0.0"></s:List>
 	<s:Rect left="170" top="10" bottom="10" right="10">
 		<s:stroke>
 			<s:SolidColorStroke color="0x000000"/>
@@ -103,4 +107,7 @@
 	<s:Group id='content' 
 			 left="170" top="10" bottom="10" right="10">
 	</s:Group>
+	<s:Label x="10" y="10" text="Menu" width="150" height="25" fontSize="18" 
+			 verticalAlign="middle" textAlign="center"/>
+
 </s:Group>

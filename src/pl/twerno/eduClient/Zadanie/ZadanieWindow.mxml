@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="950" height="600" 
+			   currentState="PreStart"
+			   verticalCenter="0"
+			   horizontalCenter="0">
+	<fx:Script>
+		<![CDATA[
+			import flash.events.TimerEvent;
+			import flash.utils.Timer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
+			import net.twerno.eduClient.RO.sesja.SesjaOtwartaRO;
+			import net.twerno.eduClient.consts.Const;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			
+			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.Env.Env;
+			import pl.twerno.eduClient.UserEnv.UczenEnv;
+
+			[Bindable]
+			protected var env:Env = Env.get;
+
+			[Bindable]
+			protected var uczenEnv:UczenEnv = Env.get.uczenEnv;
+
+			[Bindable]
+			protected var listaPytan:ArrayCollection = new ArrayCollection();
+
+			protected var timer:Timer = new Timer(1000); 
+
+			protected var listaPytanBuilder:AsyncListaPytanBuilder = new AsyncListaPytanBuilder();
+
+			protected var jestLimitCzasowy:Boolean = false;
+
+			protected var czasRozwiazania:int = 0;
+
+			protected var currentPytanieIdx:int = -1;
+
+			protected var currentPytanie:PytanieZamkniete;
+
+			protected var zadaniePlayer:IZadaniePlayer;
+
+			protected var liczbaPodejsc:int = 0;
+
+			[Bindable]
+			protected var wynik:int;
+			
+			[Bindable]
+			private var clockGroupVisible:Boolean = true;
+
+			[Bindable]
+			private var wynikGroupVisible:Boolean = true;
+			
+			private var alert:Alert;
+
+			protected function closeHandler(event:CloseEvent):void {
+				if (currentState == 'wynikiState' || currentState == 'PreStart')
+					zamknij();
+
+				alert = Alert.show("Czy przerwać zadanie?", 
+					"Przerwać zadanie?", Alert.YES | Alert.NO);
+				alert.addEventListener(CloseEvent.CLOSE, alert_closeHandler);
+			}
+
+			protected function alert_closeHandler(event:CloseEvent):void {
+				alert.removeEventListener(CloseEvent.CLOSE, alert_closeHandler);
+				if (event.detail == Alert.YES)
+					pokazEkranWynikow();
+			}
+
+			public function init(sesjaOtwarta:SesjaOtwartaRO, zadaniePlayer:IZadaniePlayer):void {
+				addEventListener(CloseEvent.CLOSE, closeHandler);
+				listaPytanBuilder.addEventListener(ListaPytanEvent.UTWORZONA, listaPytanHandler);		
+				timer.addEventListener(TimerEvent.TIMER, timerHandler);
+
+				this.zadaniePlayer = zadaniePlayer;
+				
+				czasRozwiazania = 0;
+				uczenEnv.zamknijSesje();
+				uczenEnv.sesjaOtwarta = sesjaOtwarta;
+				title = uczenEnv.sesjaOtwarta.zadanie.nazwa;
+				listaPytanBuilder.budujListePytan(sesjaOtwarta);
+
+				jestLimitCzasowy  = sesjaOtwarta.zadanie.limitCzasowy != 0;
+				clockGroupVisible = jestLimitCzasowy;
+
+				wynikGroupVisible = 
+					(sesjaOtwarta.zadanie.trybSprawdzenia == Const.TYP_SPRAWDZENIA_NATYCHMIAST) ||
+					(sesjaOtwarta.zadanie.trybSprawdzenia == Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS);
+				wypelnijZasadyPanel();
+			}
+			
+			protected function wypelnijZasadyPanel():void {
+				// wypełnij polecenie - albo całkowicie je olej
+				//TODO
+			}
+
+			protected function listaPytanHandler(event:ListaPytanEvent):void {
+				listaPytan = event.result;
+				startButton.enabled = true;
+			}
+
+			public function otworz():void {
+				PopUpManager.centerPopUp(this);
+			}
+
+			public function zamknij():void {
+				timer.stop();
+				uczenEnv.zamknijSesje();
+				removeEventListener(CloseEvent.CLOSE, closeHandler);
+				removeEventListener(ListaPytanEvent.UTWORZONA, listaPytanHandler);		
+				timer.removeEventListener(TimerEvent.TIMER, timerHandler);
+				listaPytanBuilder.removeEventListener(ListaPytanEvent.UTWORZONA, listaPytanHandler);
+				
+				PopUpManager.removePopUp(this);
+			}
+
+			protected function timerHandler(event:TimerEvent):void {
+				czasRozwiazania += 1;
+				
+				if (!jestLimitCzasowy)
+					return;
+				
+				var pozostaloCzasu: int = uczenEnv.sesjaOtwarta.zadanie.limitCzasowy -czasRozwiazania;
+				
+				clockLabel.text = pozostaloCzasu.toString();
+				
+				if (pozostaloCzasu <= 0)
+					pokazEkranWynikow();
+			}
+		
+			public function pause():void {
+				timer.stop();
+			}
+
+			public function wznow():void {
+				timer.start();
+			}
+
+			private function dodajPunkty(pytanie:PytanieZamkniete, poprawnaOdpowiedz:Boolean):void {
+				if (liczbaPodejsc == 0 && poprawnaOdpowiedz)
+					wynik += 1;
+				else	
+					liczbaPodejsc += 1;
+			}
+
+			public function start():void {
+				currentState = 'zadanieState';
+				zadaniePlayer.top    = 0;
+				zadaniePlayer.left   = 0;
+				zadaniePlayer.right  = 0;
+				zadaniePlayer.bottom = 0;
+				contentPlayerGroup.addElement(zadaniePlayer);
+				timerHandler(null);
+				timer.start();
+				wynik = 0;
+				wczytajPytanie(0);
+			}
+			
+			public function nastepnePytanie():void {
+				var poprawnaOdpowiedz:Boolean = zadaniePlayer.sprawdz();
+				dodajPunkty(currentPytanie, poprawnaOdpowiedz);
+				if (!poprawnaOdpowiedz &&
+					uczenEnv.sesjaOtwarta.zadanie.trybSprawdzenia == Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS)
+					return;
+				
+				var token:RpcToken = env.eduClient
+					.sesjaService
+					.zapiszOdpowiedz(
+						uczenEnv.sesjaOtwarta.sesjaId,
+						currentPytanie.id,
+						poprawnaOdpowiedz,
+						liczbaPodejsc);
+
+				token.newResponder(null, env.FaultHandler);
+				wczytajPytanie(currentPytanieIdx +1);
+			}
+
+			protected function wczytajPytanie(idx:int):void {
+				liczbaPodejsc = 0;
+				if (idx >= listaPytan.length) {
+					pokazEkranWynikow();
+				} else {
+					currentPytanieIdx = idx;
+					currentPytanie    = listaPytan.getItemAt(idx) as PytanieZamkniete;
+					posostaloLabel.text = (listaPytan.length -currentPytanieIdx).toString();
+					zadaniePlayer.initPytanie(currentPytanie);
+				}
+			}
+
+			public function pokazEkranWynikow():void {
+				timer.stop();
+				currentState = 'wynikiState';
+				// init wyniki
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="zadanieState"/>
+		<s:State name="PreStart"/>
+		<s:State name="wynikiState"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:Image x="0" y="0" 
+			  width="100%" height="100%" source="../assets/a_paisaje_boceto.jpg"/> 
+	<s:Group y="75" width="75" height="25" right="5" id="starGroup" includeIn="zadanieState" visible="{wynikGroupVisible}">
+		<mx:Image width="16" height="16" source="{Images.get().starImg}" verticalCenter="-1" left="0"/>
+		<s:Label text="{this.wynik}" fontSize="20" color="#6C9A0A" fontFamily="Arial" width="50" 
+				 textAlign="left" id="starLabel" x="25" verticalCenter="1"/>
+	</s:Group>
+	<s:Group y="40" width="75" height="25" right="5" id="clockGroup" includeIn="zadanieState" visible="{clockGroupVisible}">
+		<mx:Image width="16" height="16" source="{Images.get().clockImg}" verticalCenter="-1" left="0"/>
+		<s:Label text="999" fontSize="20" color="#6C9A0A" fontFamily="Arial" textAlign="left" id="clockLabel" x="25" verticalCenter="1" width="50"/>
+	</s:Group>
+	<s:Group width="195" height="25" right="5" y="5" includeIn="zadanieState">
+		<s:Label text="Pozostało pytań:" fontSize="18" fontFamily="Georgia" x="5" verticalCenter="1" width="135"/>
+		<s:Label text="999" fontSize="20" color="#6C9A0A" fontFamily="Arial" width="50" textAlign="left" id="posostaloLabel" x="145" verticalCenter="2"/>
+	</s:Group>
+	<s:Label includeIn="PreStart,wynikiState" text="Wpisz polecenie" id="polecenie" fontSize="20" fontSize.PreStart="24" width.PreStart="411" height.PreStart="162" y.PreStart="73" verticalCenter.wynikiState="-26" x.PreStart="182" horizontalCenter.wynikiState="-140" verticalAlign.PreStart="middle" textAlign.PreStart="center"/>
+	<s:Button includeIn="PreStart,wynikiState" label="Rozpocznij zadanie" 
+			  skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" 
+			  click="start();"
+			  id='startButton' enabled="false" x.PreStart="314" horizontalCenter.wynikiState="-140" y.PreStart="279" verticalCenter.wynikiState="14"/>
+	<s:Label includeIn="PreStart,wynikiState" x="640" y="73" text="Zasady" fontSize="20" fontSize.PreStart="24"/>
+	<s:Group includeIn="PreStart,wynikiState" bottom="10" right="10" top="100" left="640">
+		<s:layout>
+			<s:VerticalLayout/>
+		</s:layout>
+		<s:Group width="100%" height="25" visible="false">
+		</s:Group>
+		<s:Group width="100%" height="25" id='liczbaPunktowGroup'>
+			<mx:Image width="16" height="16" verticalCenter="0" left="0" source="{Images.get().starImg}"/>
+			<s:Label verticalCenter="2" left="20" right="5" text="Musisz zdobyć 20 punktów."  fontSize.PreStart="14"/>
+		</s:Group>
+		<s:Group width="100%" height="25">
+			<mx:Image width="16" height="16" verticalCenter="0" left="0" source="{Images.get().clockImg}"/>
+			<s:Label verticalCenter="2" left="20" right="5" text="Musisz ukończyć zadanie w czasie 999s."  fontSize.PreStart="14"/>
+		</s:Group>
+
+		<s:Group width="100%" height="25">
+		</s:Group>
+		<s:Group width="100%" height="25">
+		</s:Group>
+		<s:Group width="100%" height="25">
+		</s:Group>
+	</s:Group>
+	<s:Group includeIn="zadanieState" y="76" width="600" height="400" 
+			 horizontalCenter="0"
+			 id='contentPlayerGroup'>
+	</s:Group>
+	<mx:Image includeIn="zadanieState" x="823" 
+			  source="../assets/go-next.png"
+			  click="nastepnePytanie()" verticalCenter="0"/>
+</s:TitleWindow>

@@ -13,7 +13,10 @@ package pl.twerno.eduClient.Env {
 	import pl.twerno.eduClient.UserEnv.AdminEnv;
 	import pl.twerno.eduClient.UserEnv.NauczycielEnv;
 	import pl.twerno.eduClient.UserEnv.UczenEnv;
+	import pl.twerno.eduClient.panels.MasterPanel;
 	import pl.twerno.eduClient.panels.loginPage.LoginEvent;
+	import pl.twerno.eduClient.panels.nauczyciel.ZadajZadanieWindow;
+	import pl.twerno.eduClient.Zadanie.ZadanieWindowBuilder;
 
 	public class Env extends EventDispatcher {
 
@@ -29,7 +32,11 @@ package pl.twerno.eduClient.Env {
 		
 		[Bindable]
 		public var uczenEnv:UczenEnv = new UczenEnv();
+		
+		public var zadanieBuilder:ZadanieWindowBuilder = new ZadanieWindowBuilder();
 
+		public var masterPanel:MasterPanel;
+		
 		private var _loggedAccount : Account;
 		public function get account():Account {return _loggedAccount}
 

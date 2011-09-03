@@ -3,14 +3,18 @@
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx" 
 				autoDrawBackground="true"
-				minWidth="305" minHeight="180">
+				minWidth="305" minHeight="180"
+				dataChange="itemrenderer1_dataChangeHandler(event)">
 	<fx:Script>
 		<![CDATA[
+			import mx.events.FlexEvent;
+			
 			import net.twerno.eduClient.RO.pytanie.OdpPytanieZamkniete;
 			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
 			import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
 			
 			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.Env.Env;
 
 			protected function dodaj_clickHandler(event:MouseEvent):void {
 				var odp:OdpPytanieZamkniete = new OdpPytanieZamkniete();
@@ -26,6 +30,14 @@
 				(data as PytanieZamkniete).odpowiedzi.removeItemAt(
 					(data as PytanieZamkniete).odpowiedzi.getItemIndex(odp));
 			}
+
+			protected function itemrenderer1_dataChangeHandler(event:FlexEvent):void {
+				if (data == null)
+					enabled = false;
+				else
+					enabled = Env.get.account.id == Env.get.nauczycielEnv.wybranyZbiorPytan.autorId;
+			}
+
 		]]>
 	</fx:Script>
 

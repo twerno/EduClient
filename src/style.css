@@ -1,6 +1,7 @@
 /* CSS file */
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
+@namespace uczen "pl.twerno.eduClient.panels.uczen.*";
 
 .GreenStyle
 {
@@ -11,5 +12,16 @@
 .OrangeFocus
 {
 	focusColor: #FBCA20;
+}
+
+uczen|AbstractZadanieWindow.ZadanieWindow
+{
+	borderVisible: false;
+	chromeColor: #BFFFB2;
+	dropShadowVisible: false;
+	backgroundColor: #EFFFE2;
+	contentBackgroundColor: #EFFFE2;
+	focusColor: #86E135;
+	rollOverColor: #F7FD98;
 }
 	

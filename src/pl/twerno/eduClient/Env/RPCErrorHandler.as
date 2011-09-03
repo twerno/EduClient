@@ -14,6 +14,7 @@ package pl.twerno.eduClient.Env {
 
 			if (info.fault.faultCode == 'Client.Authorization') {
 				env.logout();
+				Alert.show("Przekroczono czas bezczynności. Zostałeś wylogowany.");
 				return true;
 //				throw new Error(dajFaultString('Błąd autoryzacji.', info));
 			}

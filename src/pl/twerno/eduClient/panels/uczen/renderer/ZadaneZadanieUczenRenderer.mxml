@@ -3,7 +3,7 @@
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx" 
 				autoDrawBackground="true" height="35"
-				dataChange="itemrenderer1_dataChangeHandler(event)">
+				dataChange="itemrenderer1_dataChangeHandler(event)" width="585">
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
@@ -11,6 +11,7 @@
 			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie;
 			
 			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.Env.Env;
 			
 			private function getObowiazkoweStr():String {
 				if (data == null) return '';
@@ -31,6 +32,11 @@
 				termin.text = getDtDo();
 			}
 
+			
+			protected function rozwiaz_clickHandler(event:MouseEvent):void {
+				Env.get.uczenEnv.otworzSesje((data as ZadaneZadanie).id);					
+			}
+
 		]]>
 	</fx:Script>
 
@@ -38,5 +44,8 @@
 	<s:Label verticalCenter="2" left="40" width="180" text="{(data as ZadaneZadanie).nazwa}"/>
 	<s:Label id='obowiazkowe' verticalCenter="2" left="220" width="125" text=""/>
 	<s:Label id='termin' verticalCenter="2" left="355" width="125" text=""/>
+	<s:Button x="500" y="6" skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" 
+			  label="Rozwiąż"
+			  click="rozwiaz_clickHandler(event)"/>
 	
 </s:ItemRenderer>

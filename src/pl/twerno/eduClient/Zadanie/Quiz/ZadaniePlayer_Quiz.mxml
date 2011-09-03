@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="400" height="300"
+		 implements="pl.twerno.eduClient.Zadanie.IZadaniePlayer">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+
+			import net.twerno.eduClient.RO.pytanie.OdpPytanieZamkniete;
+			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
+
+			import pl.twerno.eduClient.Zadanie.IZadaniePlayer;
+			import pl.twerno.eduClient.Zadanie.ZadanieWindow;
+
+			private var pytanie:PytanieZamkniete;
+
+			[Bindable]
+			private var odpowiedzi:ArrayCollection = new ArrayCollection();
+
+			public function init(owner:ZadanieWindow):void {
+				// init...
+			}
+
+			public function initPytanie(pytanie:PytanieZamkniete):void {
+				this.pytanie = pytanie;
+				trescPytania.text = pytanie.trescPytania;
+				
+				odpowiedzi.disableAutoUpdate();
+				odpowiedzi.removeAll();
+				
+				for each (var odpPytanie:OdpPytanieZamkniete in pytanie.odpowiedzi) {
+					var odp:ZadanieQuiz_OdpowiedziItem = 
+						new ZadanieQuiz_OdpowiedziItem(odpPytanie.stOdpowiedz, odpPytanie.id);
+					odpowiedzi.addItem(odp);
+				}
+				odpowiedzi.enableAutoUpdate();
+			}
+
+			public function sprawdz():Boolean {
+				var correct:Boolean = true;
+				
+				for each (var odp:ZadanieQuiz_OdpowiedziItem in odpowiedzi) {
+					odp.sprawdzone = true;
+					odp.poprawne = (odp.zaznaczone == pytanie.dajOdpowiedz(odp.odpPytanieId).tnPoprawna);
+					correct = correct && odp.poprawne;
+				}
+
+				return correct;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:List left="45" top="150" width="565" bottom="25" id='listaOdpowiedzi'
+			itemRenderer="pl.twerno.eduClient.Zadanie.Quiz.ZadanieQuiz_OdpowiedziRenderer"
+			dataProvider="{odpowiedzi}" borderVisible="false" contentBackgroundAlpha="0.0"></s:List>
+	<s:RichText id='trescPytania' text="Treść pytania" width="600" height="70" fontSize="20" top="75" left="10"/>
+</s:Group>

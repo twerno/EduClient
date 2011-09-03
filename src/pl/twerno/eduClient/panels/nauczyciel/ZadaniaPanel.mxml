@@ -108,7 +108,7 @@
 			dataProvider="{env.nauczycielEnv.zadaniaList}"
 			itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.ZadanieListRenderer"
 			change="zadaniaList_changeHandler(event)"/>
-	<s:Panel width="370" height="439" left="190" top="0" title="Zadanie" id='zadaniePanel'>
+	<s:Panel width="370" height="468" left="190" top="0" title="Zadanie" id='zadaniePanel'>
 		<mx:Form left="0" top="0" right="0" bottom="0">
 			<mx:FormItem label="Nazwa" width="100%">
 				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybraneZadanie.nazwa}"/>
@@ -142,7 +142,7 @@
 								change="{env.nauczycielEnv.wybraneZadanie.typWyboruPytan = (typZadania.selectedItem as KonwerterItem).val}"/>
 			</mx:FormItem>
 			<mx:FormItem label="Limit czasowy" width="100%">
-				<s:NumericStepper width="100%" stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" minimum="0" maximum="100"/>
+				<s:NumericStepper width="100%" stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" minimum="0" maximum="999"/>
 			</mx:FormItem>
 			<mx:FormItem width="100%">
 				<mx:HRule height="100%" width="100%"/>
