@@ -5,7 +5,9 @@
 				autoDrawBackground="true"
 				currentState="Main"
 				dataChange="dataChangeHandler(event)" 
-				height.Main="25" height.Selected="55">
+				height.Main="25" height.Selected="55"
+				addedToStage="addedToStageHandler(event)"
+				removedFromStage="removedFromStageHandler(event)">
 	<fx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -13,9 +15,11 @@
 			
 			import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
 			import net.twerno.eduClient.RO.zadanie.Zadanie_ZbiorPytan;
+			import net.twerno.eduClient.consts.Const;
 			
 			import pl.twerno.commLib.Images;
 			import pl.twerno.eduClient.Env.Env;
+			import pl.twerno.eduClient.panels.nauczyciel.NauczycielEvent;
 
 			[Bindable]
 			private var env:Env = Env.get;
@@ -28,12 +32,22 @@
 					zzp              = new Zadanie_ZbiorPytan();
 					zzp.zadanie      = env.nauczycielEnv.wybraneZadanie;
 					zzp.zbiorPytanId = (data as ZbiorPytan).id;
-
 					env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan.addItem(zzp);
-					currentState = 'Selected';
+					
+					if (env.nauczycielEnv.wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO)
+						currentState = 'Selected';
+					else 
+						currentState = 'Main';
 				} else {
 					env.nauczycielEnv.wybraneZadanie.del_zbiorPytan((data as ZbiorPytan).id);
 					currentState = 'Main';
+				}
+				
+				if (env.nauczycielEnv.wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO) {
+					env.nauczycielEnv.wybraneZadanie.iloscPytan = 0;
+					for each (var zzb:Zadanie_ZbiorPytan in env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan)
+						env.nauczycielEnv.wybraneZadanie.iloscPytan += zzb.iloscPytan;
+					wyliczMaxIloscPytan();
 				}
 			}
 
@@ -45,11 +59,36 @@
 
 				if (zzp != null) {
 					chBox.selected = true;
-					currentState   = 'Selected';
+					if (env.nauczycielEnv.wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO) {
+						currentState   = 'Selected';
+//						wyliczMaxIloscPytan();
+					} else
+						currentState   = 'Main';
 				} else {
 					chBox.selected = false;
 					currentState   = 'Main';
 				}
+			}
+
+			private function wyliczMaxIloscPytan():void {
+				var maxIloscPytan: int = 0;
+				for each (var z:ZbiorPytan in env.nauczycielEnv.dostepneZbioryPytanTypu)
+					if (env.nauczycielEnv.wybraneZadanie.has_zbiorPytan(z.id))
+						maxIloscPytan += z.size;
+					
+				env.nauczycielEnv.maxIloscPytan = maxIloscPytan;
+			}
+
+			protected function addedToStageHandler(event:Event):void {
+				env.addEventListener(NauczycielEvent.TYP_WYBORU_CHANGED, typ_wyboru_hanged);				
+			}
+			
+			private function typ_wyboru_hanged(event:NauczycielEvent):void {
+				dataChangeHandler(null);
+			}
+
+			protected function removedFromStageHandler(event:Event):void {
+				env.removeEventListener(NauczycielEvent.TYP_WYBORU_CHANGED, typ_wyboru_hanged);	
 			}
 
 		]]>
@@ -66,16 +105,9 @@
 				        +' (' +(data as ZbiorPytan).przedmiot +')'
 						+'  pytań w zbiorze:' +(data as ZbiorPytan).size}"
 				change="chBox_changeHandler(event)"/>
-	<s:NumericStepper id='ns_min' x="197" y="27" includeIn="Selected" width="65" 
+	<s:NumericStepper id='iloscPytan' includeIn="Selected" y="27"
 					  minimum="1" stepSize="1"
-					  maximum='{ns_max.value}'
-					  value="@{zzp.coNajmniej}"/>
-	<s:NumericStepper id='ns_max' x="373" y="27" includeIn="Selected" width="65" 
-					  minimum="{ns_min.value}"
-					  maximum="{(data as ZbiorPytan).size}"
-					  stepSize="1"
-					  value="@{zzp.nieWiecejNiz}"/>
-	<s:Label x="121" y="27" text="Co najmniej" height="25" verticalAlign="middle" includeIn="Selected"/>
-	<s:Label x="290" y="27" text="Nie więcej niż" height="25" verticalAlign="middle" includeIn="Selected"/>
+					  maximum='{(data as ZbiorPytan).size}'
+					  value="@{zzp.iloscPytan}" right="5" left="120"/>
 	<s:Label x="25" y="27" text="Pytań ze zbioru:" height="25" verticalAlign="middle" includeIn="Selected"/>
 </s:ItemRenderer>

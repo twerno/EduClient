@@ -5,6 +5,7 @@ package pl.twerno.eduClient.Zadanie {
 	import mx.collections.ArrayCollection;
 	
 	import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
+	import net.twerno.eduClient.RO.sesja.OpanowaniePytaniaRO;
 	import net.twerno.eduClient.RO.sesja.SesjaOtwartaRO;
 	import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_ZbiorPytan;
 	import net.twerno.eduClient.consts.Const;
@@ -12,6 +13,13 @@ package pl.twerno.eduClient.Zadanie {
 	import pl.twerno.eduClient.panels.uczen.ZamknijZadanieEvent;
 
 	public class AsyncListaPytanBuilder extends EventDispatcher {
+		
+		private const ZNAJOMOSC_NISKA   : String = 'ZNAJOMOSC_NISKA';
+		private const ZNAJOMOSC_SREDNIA : String = 'ZNAJOMOSC_SREDNIA';
+		private const ZNAJOMOSC_WYSOKA  : String = 'ZNAJOMOSC_WYSOKA';
+
+		private const DP_ZNAJOMOSC_SREDNIA : Number = .6;
+		private const DP_ZNAJOMOSC_WYSOKA  : Number = .84;
 		
 		public function AsyncListaPytanBuilder() {
 		}
@@ -22,18 +30,39 @@ package pl.twerno.eduClient.Zadanie {
 			} else if (sesjaOtwarta.zadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_INTELIGENTNIE) {
 				
 				// jeśli mamy jeszcze za mało danych to losujemy
-				if (sesjaOtwarta.opanowanePytania.length < sesjaOtwarta.zadanie.limitPytan)
+				if (sesjaOtwarta.opanowanePytania.length < sesjaOtwarta.zadanie.iloscPytan)
 					wyborLosowy(sesjaOtwarta);
 				else
 					wyborLosowy(sesjaOtwarta);	
 			}
+		}
+		
+		private function wyborInteligentny(sesjaOtwarta:SesjaOtwartaRO):void {
+			//zbiory<FLAGA_ZNAJOMOSC, ArrayCollection<PytanieZamkniete>>
+			var zbiory:Dictionary = pogrupujPytaniaWgZnajomosci(sesjaOtwarta);
+
+			//liczbaPytan<String, int>
+			var liczbaPytan:Dictionary = okresLiczbePytanPerZbior(zbiory, sesjaOtwarta.zadanie.iloscPytan);
+			var result:ArrayCollection = new ArrayCollection();
+			var zzzp:ZadaneZadanie_ZbiorPytan;
+
+			for (var o:Object in zbiory) {
+				zzzp = o as ZadaneZadanie_ZbiorPytan;
+				result.addAll(
+					wybierzPytaniaZeZbioru(zbiory[zzzp], liczbaPytan[zzzp.zbiorPytanId]));
+			}
+			
+			// poinformuj o zmianach
+			var event:ListaPytanEvent = new ListaPytanEvent(ListaPytanEvent.UTWORZONA);
+			event.result = result;
+			this.dispatchEvent(event);
 		}
 
 		private function wyborLosowy(sesjaOtwarta:SesjaOtwartaRO):void {
 			//zbiory<ZadaneZadanie_ZbiorPytan, ArrayCollection<PytanieZamkniete>>
 			var zbiory:Dictionary      = pogrupujPytania(sesjaOtwarta);
 			//liczbaPytan<String, int>
-			var liczbaPytan:Dictionary = okresLiczbePytanPerZbior(zbiory, sesjaOtwarta.zadanie.limitPytan);
+			var liczbaPytan:Dictionary = okresLiczbePytanPerZbior(zbiory, sesjaOtwarta.zadanie.iloscPytan);
 			var result:ArrayCollection = new ArrayCollection();
 			var zzzp:ZadaneZadanie_ZbiorPytan;
 			
@@ -59,15 +88,15 @@ package pl.twerno.eduClient.Zadanie {
 
 				for (o in zbiory) {
 					zzzp = o as ZadaneZadanie_ZbiorPytan;
-					result[zzzp.zbiorPytanId] = 
-						Math.min((zbiory[zzzp] as ArrayCollection).length, zzzp.nieWiecejNiz);
+//					result[zzzp.zbiorPytanId] = 
+//						Math.min((zbiory[zzzp] as ArrayCollection).length, zzzp.nieWiecejNiz);
 				}
 			} else {
 				var pozostalo:int = maxIlosc;
 				var wybierz:int;
 				for (o in zbiory) {
 					zzzp = o as ZadaneZadanie_ZbiorPytan;
-					wybierz = Math.max(0, Math.min(pozostalo, zzzp.coNajmniej, (zbiory[zzzp] as ArrayCollection).length)); 
+//					wybierz = Math.max(0, Math.min(pozostalo, zzzp.coNajmniej, (zbiory[zzzp] as ArrayCollection).length)); 
 					result[zzzp.zbiorPytanId] = wybierz;
 					pozostalo -= wybierz;
 				}
@@ -79,12 +108,12 @@ package pl.twerno.eduClient.Zadanie {
 					for (o in zbiory) {
 						if (pozostalo > 0) {
 							zzzp = o as ZadaneZadanie_ZbiorPytan;
-							if (result[zzzp.zbiorPytanId] < zzzp.nieWiecejNiz &&
-								result[zzzp.zbiorPytanId] < (zbiory[zzzp] as ArrayCollection).length) {
-								result[zzzp.zbiorPytanId] = result[zzzp.zbiorPytanId] +1;
-								osiagnietyLimit = false;
-								pozostalo -= 1;								
-							}								
+//							if (result[zzzp.zbiorPytanId] < zzzp.nieWiecejNiz &&
+//								result[zzzp.zbiorPytanId] < (zbiory[zzzp] as ArrayCollection).length) {
+//								result[zzzp.zbiorPytanId] = result[zzzp.zbiorPytanId] +1;
+//								osiagnietyLimit = false;
+//								pozostalo -= 1;								
+//							}								
 						}
 					}
 				}
@@ -98,7 +127,7 @@ package pl.twerno.eduClient.Zadanie {
 			var zzzp:ZadaneZadanie_ZbiorPytan;
 			for (var o:Object in zbiory) {
 				zzzp = o as ZadaneZadanie_ZbiorPytan;
-				result += zzzp.nieWiecejNiz;
+//				result += zzzp.nieWiecejNiz;
 			}
 			return result;
 		}
@@ -128,6 +157,44 @@ package pl.twerno.eduClient.Zadanie {
 			for each (var zzzp:ZadaneZadanie_ZbiorPytan in sesjaOtwarta.zadanie.zadanie_zbioryPytan)
 				zbiory[zzzp] = dajPytaniaZeZbioru(sesjaOtwarta.pytania, zzzp.zbiorPytanId);
 			return zbiory;	
+		}
+		
+		private function pogrupujPytaniaWgZnajomosci(sesjaOtwarta:SesjaOtwartaRO):Dictionary {
+			var zbiory:Dictionary    = new Dictionary();
+			var pytania:Dictionary   = new Dictionary();
+			var znajomosc:Dictionary = new Dictionary();
+			
+			zbiory[ZNAJOMOSC_NISKA]   = new ArrayCollection();
+			zbiory[ZNAJOMOSC_SREDNIA] = new ArrayCollection();
+			zbiory[ZNAJOMOSC_WYSOKA]  = new ArrayCollection();
+
+			// init
+			// kazdemu pytaniu przydzielamy flage niskiej znajomosci
+			for each (var pytanie:PytanieZamkniete in sesjaOtwarta.pytania) {
+				pytania[pytanie.id] = pytanie;
+				znajomosc[pytanie]  = ZNAJOMOSC_NISKA;
+			}	
+
+			// przydzielamy flage kazdemu pytaniu na podstawie danych
+			var procent:Number;
+			var pyt:PytanieZamkniete;
+			for each (var opanowane:OpanowaniePytaniaRO in sesjaOtwarta.opanowanePytania) {
+				procent = opanowane.correctAnswers/opanowane.iloscPodejsc;
+				pyt = pytanie[opanowane.pytanieId];
+				if (procent > DP_ZNAJOMOSC_WYSOKA)
+					znajomosc[pyt] = ZNAJOMOSC_WYSOKA;
+				else if (procent > DP_ZNAJOMOSC_SREDNIA)
+					znajomosc[pyt] = ZNAJOMOSC_SREDNIA;
+			}
+			
+			var kat:String;
+			for (var o:Object in znajomosc) {
+				pyt = o as PytanieZamkniete;
+				kat = znajomosc[o];
+				zbiory[kat] = o;
+			}
+
+			return zbiory;
 		}
 		
 		private function wybierzPytaniaZeZbioru(pytania:ArrayCollection, iloscPytan:int):ArrayCollection {

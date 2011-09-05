@@ -8,10 +8,13 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
 			import net.twerno.eduClient.RO.zadanie.Zadanie;
+			import net.twerno.eduClient.RO.zadanie.Zadanie_ZbiorPytan;
 			import net.twerno.eduClient.consts.Const;
 			import net.twerno.eduClient.responders.RpcResponder;
 			import net.twerno.eduClient.rpc.tokens.RpcToken;
@@ -58,6 +61,7 @@
 					}
 
 					typZadania.enabled = env.nauczycielEnv.wybraneZadanie.id == '';
+					wyborPytan_Changed();
 				}
 			}
 
@@ -103,6 +107,18 @@
 				win.init(zadanie);
 				PopUpManager.centerPopUp(win);
 			}
+			
+			private function wyborPytan_Changed():void {
+				env.nauczycielEnv.wybraneZadanie.typWyboruPytan = (wyborPytan.selectedItem as KonwerterItem).val;
+				iloscPytan.enabled = (wyborPytan.selectedItem as KonwerterItem).val == Const.TYP_WYBORU_PYTAN_INTELIGENTNIE;
+				env.nauczycielEnv.wybraneZadanie.iloscPytan = 0;
+				if (!iloscPytan.enabled) {
+					for each (var zzb:Zadanie_ZbiorPytan in env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan)
+						env.nauczycielEnv.wybraneZadanie.iloscPytan += zzb.iloscPytan;
+				}
+				var event:NauczycielEvent = new NauczycielEvent(NauczycielEvent.TYP_WYBORU_CHANGED);
+				env.dispatchEvent(event);
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -127,7 +143,7 @@
 			</mx:FormItem>
 			<mx:FormItem label="Minimalny wynik" width="100%">
 				<s:NumericStepper id='minimalnyWynik' value="@{env.nauczycielEnv.wybraneZadanie.minimalnyWynik}" 
-					width="100%" minimum="0" maximum="100" stepSize="1"/>
+					width="100%" minimum="0" maximum="{iloscPytan.value}" stepSize="1"/>
 			</mx:FormItem>
 			<mx:FormItem label="Dostępne od" width="100%">
 				<mx:DateField width="100%" selectedDate="@{env.nauczycielEnv.wybraneZadanie.dtOd}"/>
@@ -138,12 +154,14 @@
 			<mx:FormItem width="100%">
 				<mx:HRule height="100%" width="100%"/>
 			</mx:FormItem>
-			<mx:FormItem label="Limit pytań" width="100%">
-				<s:NumericStepper width="100%" stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.limitPytan}" minimum="0" maximum="100"/>
+			<mx:FormItem label="Ilość pytań" width="100%">
+				<s:NumericStepper id='iloscPytan' width="100%" 
+								  stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.iloscPytan}" 
+								  minimum="0" maximum="{env.nauczycielEnv.maxIloscPytan}"/>
 			</mx:FormItem>
 			<mx:FormItem label="Wybór pytań" width="100%">
 				<s:DropDownList id='wyborPytan' width="100%" dataProvider="{Const.TYP_WYBORU_KONWERTER}"
-								change="{env.nauczycielEnv.wybraneZadanie.typWyboruPytan = (wyborPytan.selectedItem as KonwerterItem).val}"/>
+								change="wyborPytan_Changed()"/>
 			</mx:FormItem>
 			<mx:FormItem label="Limit czasowy" width="100%">
 				<s:NumericStepper width="100%" stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" minimum="0" maximum="999"/>
@@ -175,7 +193,7 @@
 	<s:Panel right="0" top="0" left="570" title="Zbiory pytań" height="48%">
 		<s:List top="5" left="5" right="5" bottom="5" 
 				dataProvider="{env.nauczycielEnv.dostepneZbioryPytanTypu}"
-				itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.WybierzZbiorPytanRenderer"/>
+				itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.WybierzZbiorPytanRenderer" id="zbioryList"/>
 	</s:Panel>
 	<s:Panel height="50%" bottom="0" left="570" right="0" title="Wyróżnienia" id='zasadyPanel'>
 		<s:Scroller top="5" left="5" bottom="5" right="5">
@@ -184,43 +202,50 @@
 					<s:VerticalLayout/>
 				</s:layout>
 				<s:Group minHeight="25" width="100%">
-					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_bronzeImg}"/>
+					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_goldImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Punkty" />
-					<s:NumericStepper id='punktyBronze' value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_bronze}" 
-									  left="75" top="1" width="100%" minimum="0" stepSize="1"/>
+					<s:NumericStepper id='punktyGold' value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_gold}" 
+									  left="75" top="1" width="100%" 
+									  minimum="{punktySilver.value}" 
+									  maximum="{env.nauczycielEnv.wybraneZadanie.iloscPytan}" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_silverImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Punkty" />
 					<s:NumericStepper id='punktySilver' value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_silver}" 
-									  left="75" top="1" width="100%" minimum="{punktyBronze.value}" stepSize="1"/>
+									  left="75" top="1" width="100%" 
+									  minimum="{punktyBronze.value}" 
+									  maximum="{punktyGold.value}"
+									  stepSize="1"/>
+				</s:Group>
+				<s:Group minHeight="25" width="100%">
+					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_bronzeImg}"/>
+					<s:Label verticalCenter="2" left="25" width="50" text="Punkty" />
+					<s:NumericStepper id='punktyBronze' value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_bronze}" 
+									  left="75" top="1" width="100%" 
+									  minimum="0" 
+									  maximum="{punktySilver.value}" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_goldImg}"/>
-					<s:Label verticalCenter="2" left="25" width="50" text="Punkty" />
-					<s:NumericStepper value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_gold}" 
-									  left="75" top="1" width="100%" minimum="{punktySilver.value}" stepSize="1"/>
+					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
+					<s:NumericStepper id='czasGold' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_gold}" 
+									  left="75" top="1" width="100%" minimum="{czasSilver.value}" 
+									  maximum="{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" stepSize="1"/>
+				</s:Group>
+					<s:Group minHeight="25" width="100%">
+						<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_silverImg}"/>
+						<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
+						<s:NumericStepper id='czasSilver' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_silver}" 
+										  left="75" top="1" width="100%" minimum="{czasBronze.value}" 
+										  maximum="{czasGold.value}" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_bronzeImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
 					<s:NumericStepper id='czasBronze' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_bronze}" 
 									  left="75" top="1" width="100%" minimum="0" 
-									  maximum="{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" stepSize="1"/>
-				</s:Group>
-				<s:Group minHeight="25" width="100%">
-					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_silverImg}"/>
-					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
-					<s:NumericStepper id='czasSilver' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_silver}" 
-									  left="75" top="1" width="100%" minimum="{czasBronze.value}" 
-									  maximum="{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" stepSize="1"/>
-				</s:Group>
-				<s:Group minHeight="25" width="100%">
-					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_goldImg}"/>
-					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
-					<s:NumericStepper value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_gold}" 
-									  left="75" top="1" width="100%" minimum="{czasSilver.value}" 
-									  maximum="{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" stepSize="1"/>
+									  maximum="{czasSilver.value}" stepSize="1"/>
 				</s:Group>
 			</s:Group>
 		</s:Scroller>

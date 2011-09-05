@@ -24,6 +24,8 @@ package pl.twerno.eduClient.UserEnv {
 		
 		public var zadaneZadaniaList:ArrayCollection = new ArrayCollection();
 		
+		public var maxIloscPytan:int = 0;
+		
 		
 		public function clean():void {
 			zbioryPytanList.removeAll();
@@ -34,6 +36,7 @@ package pl.twerno.eduClient.UserEnv {
 			dostepneZbioryPytanTypu.removeAll();
 			wybraneGrupyDoZadania.removeAll();
 			zadaneZadaniaList.removeAll();
+			maxIloscPytan = 0;
 		}
 
 		
