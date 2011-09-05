@@ -3,6 +3,8 @@ package pl.twerno.eduClient.Env {
 	
 	import mx.containers.Accordion;
 	import mx.controls.Alert;
+	import mx.core.IFlexDisplayObject;
+	import mx.managers.PopUpManager;
 	import mx.rpc.events.FaultEvent;
 	
 	import net.twerno.eduClient.EduClient;
@@ -13,10 +15,10 @@ package pl.twerno.eduClient.Env {
 	import pl.twerno.eduClient.UserEnv.AdminEnv;
 	import pl.twerno.eduClient.UserEnv.NauczycielEnv;
 	import pl.twerno.eduClient.UserEnv.UczenEnv;
+	import pl.twerno.eduClient.Zadanie.ZadanieWindowBuilder;
 	import pl.twerno.eduClient.panels.MasterPanel;
 	import pl.twerno.eduClient.panels.loginPage.LoginEvent;
 	import pl.twerno.eduClient.panels.nauczyciel.ZadajZadanieWindow;
-	import pl.twerno.eduClient.Zadanie.ZadanieWindowBuilder;
 
 	public class Env extends EventDispatcher {
 
@@ -39,6 +41,8 @@ package pl.twerno.eduClient.Env {
 		
 		private var _loggedAccount : Account;
 		public function get account():Account {return _loggedAccount}
+		
+		private var _openedPopUp:IFlexDisplayObject = null;
 
 		public function login(account:Account):void {
 			_loggedAccount = account;
@@ -49,6 +53,8 @@ package pl.twerno.eduClient.Env {
 			adminEnv.clean();
 			uczenEnv.clean();
 			nauczycielEnv.clean();
+			
+			zamknijPopUp();
 			
 //			if (!eduClient.userService.authenticated()) {
 //				return
@@ -71,6 +77,18 @@ package pl.twerno.eduClient.Env {
 		
 		public function showDetails(rooEntity:ROOEntity):void {
 			Alert.show(rooEntity.detailedToString());
+		}
+		
+		public function openPopUp(window:IFlexDisplayObject):void {
+			PopUpManager.centerPopUp(window);
+			_openedPopUp = window;
+		}
+		
+		public function zamknijPopUp():void {
+			if (_openedPopUp) {
+				PopUpManager.removePopUp(_openedPopUp);
+				_openedPopUp = null;
+			}
 		}
 		
 		

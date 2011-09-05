@@ -44,6 +44,7 @@ package pl.twerno.eduClient.UserEnv {
 		}
 		
 		public function clean():void {
+			zamknijSesje();
 			zadaniaList.removeAll();
 		}
 	}

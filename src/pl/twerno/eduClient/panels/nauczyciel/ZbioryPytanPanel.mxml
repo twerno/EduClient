@@ -39,7 +39,7 @@
 			}
 
 			protected function wybranyZbiorChanged():void {
-				pytaniaPanel.enabled = false;
+				pytaniaPanel.enabled    = env.nauczycielEnv.wybranyZbiorPytan != null;
 				zbPanel.enabled         = env.nauczycielEnv.wybranyZbiorPytan != null;
 				dodajPytanieBtn.enabled = zbPanel.enabled;
 				usunPytanieBtn.enabled  = zbPanel.enabled;
@@ -62,7 +62,7 @@
 
 				if (zbPanel.enabled && 
 					env.nauczycielEnv.wybranyZbiorPytan.autorId != env.account.id) {
-					zbPanel.enabled = false;	
+					zbPanel.enabled         = false;	
 					dodajPytanieBtn.enabled = false;
 					usunPytanieBtn.enabled  = false;
 					usunBtn.enabled         = false;
@@ -76,6 +76,7 @@
 			}
 
 			public override function init():void {
+				env.nauczycielEnv.wybranyZbiorPytan = null;
 				pytaniaList_changeHandler(null);
 				var token:RpcToken = env.eduClient.pytanieService.wczytajDostepneZbiory();
 				token.addResponder(new RpcResponder(zbioryWczytaneHandler, env.FaultHandler));

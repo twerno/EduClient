@@ -38,6 +38,8 @@
 			}
 
 			protected function dataChangeHandler(event:FlexEvent):void {
+				if (data == null) return;
+				if (env.nauczycielEnv.wybraneZadanie == null) return;
 				var zp:ZbiorPytan = data as ZbiorPytan;
 				zzp = env.nauczycielEnv.wybraneZadanie.get_zbiorPytan(zp.id);
 
@@ -60,13 +62,18 @@
 	<mx:Image y="4" left="5" width="16" height="16"
 			  source="{Images.get().pluginImg}"/>
 	<s:CheckBox id='chBox' top="0" height="25" left="25" right="5" 
-				label="{(data as ZbiorPytan).opis +' (' +(data as ZbiorPytan).przedmiot +')'}"
+				label="{(data as ZbiorPytan).opis
+				        +' (' +(data as ZbiorPytan).przedmiot +')'
+						+'  pytań w zbiorze:' +(data as ZbiorPytan).size}"
 				change="chBox_changeHandler(event)"/>
 	<s:NumericStepper id='ns_min' x="197" y="27" includeIn="Selected" width="65" 
 					  minimum="1" stepSize="1"
+					  maximum='{ns_max.value}'
 					  value="@{zzp.coNajmniej}"/>
 	<s:NumericStepper id='ns_max' x="373" y="27" includeIn="Selected" width="65" 
-					  minimum="{ns_min.value}" stepSize="1"
+					  minimum="{ns_min.value}"
+					  maximum="{(data as ZbiorPytan).size}"
+					  stepSize="1"
 					  value="@{zzp.nieWiecejNiz}"/>
 	<s:Label x="121" y="27" text="Co najmniej" height="25" verticalAlign="middle" includeIn="Selected"/>
 	<s:Label x="290" y="27" text="Nie więcej niż" height="25" verticalAlign="middle" includeIn="Selected"/>

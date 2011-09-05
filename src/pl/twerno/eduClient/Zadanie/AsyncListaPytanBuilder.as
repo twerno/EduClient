@@ -19,6 +19,13 @@ package pl.twerno.eduClient.Zadanie {
 		public function budujListePytan(sesjaOtwarta:SesjaOtwartaRO):void {
 			if (sesjaOtwarta.zadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO) {
 				wyborLosowy(sesjaOtwarta);
+			} else if (sesjaOtwarta.zadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_INTELIGENTNIE) {
+				
+				// jeśli mamy jeszcze za mało danych to losujemy
+				if (sesjaOtwarta.opanowanePytania.length < sesjaOtwarta.zadanie.limitPytan)
+					wyborLosowy(sesjaOtwarta);
+				else
+					wyborLosowy(sesjaOtwarta);	
 			}
 		}
 

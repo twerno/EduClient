@@ -15,7 +15,6 @@
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;
 			
 			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
 			import net.twerno.eduClient.RO.sesja.SesjaOtwartaRO;
@@ -63,12 +62,14 @@
 			private var alert:Alert;
 
 			protected function closeHandler(event:CloseEvent):void {
-				if (currentState == 'wynikiState' || currentState == 'PreStart')
+				if (currentState == 'wynikiState' || currentState == 'PreStart') {
 					zamknij();
-
-				alert = Alert.show("Czy przerwać zadanie?", 
-					"Przerwać zadanie?", Alert.YES | Alert.NO);
-				alert.addEventListener(CloseEvent.CLOSE, alert_closeHandler);
+					
+				} else {
+					alert = Alert.show("Czy przerwać zadanie?", 
+						"Przerwać zadanie?", Alert.YES | Alert.NO);
+					alert.addEventListener(CloseEvent.CLOSE, alert_closeHandler);
+				}
 			}
 
 			protected function alert_closeHandler(event:CloseEvent):void {
@@ -98,30 +99,37 @@
 					(sesjaOtwarta.zadanie.trybSprawdzenia == Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS);
 				wypelnijZasadyPanel();
 			}
-			
+
 			protected function wypelnijZasadyPanel():void {
-				// wypełnij polecenie - albo całkowicie je olej
+				var sesja:SesjaOtwartaRO = env.uczenEnv.sesjaOtwarta;
+				
+				punktyRuleLabel.text = 'Musisz zdobyć ' +sesja.zadanie.minimalnyWynik +' punktów.';
+
+				if (sesja.zadanie.limitCzasowy == 0)
+					czasRuleLabel.text = 'Masz nieograniczony czas.';
+				else
+					czasRuleLabel.text = 'Musisz ukończyć zadanie w czasie ' +sesja.zadanie.limitCzasowy +'s.';
 				//TODO
 			}
 
 			protected function listaPytanHandler(event:ListaPytanEvent):void {
 				listaPytan = event.result;
+				zadaniePlayer.init(this, env.uczenEnv.sesjaOtwarta, listaPytan);
 				startButton.enabled = true;
 			}
 
 			public function otworz():void {
-				PopUpManager.centerPopUp(this);
+				env.openPopUp(this);
 			}
 
 			public function zamknij():void {
 				timer.stop();
-				uczenEnv.zamknijSesje();
 				removeEventListener(CloseEvent.CLOSE, closeHandler);
 				removeEventListener(ListaPytanEvent.UTWORZONA, listaPytanHandler);		
 				timer.removeEventListener(TimerEvent.TIMER, timerHandler);
 				listaPytanBuilder.removeEventListener(ListaPytanEvent.UTWORZONA, listaPytanHandler);
 				
-				PopUpManager.removePopUp(this);
+				env.zamknijPopUp();
 			}
 
 			protected function timerHandler(event:TimerEvent):void {
@@ -200,6 +208,8 @@
 			public function pokazEkranWynikow():void {
 				timer.stop();
 				currentState = 'wynikiState';
+
+				uczenEnv.zamknijSesje();
 				// init wyniki
 			}
 		]]>
@@ -213,7 +223,7 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<mx:Image x="0" y="0" 
-			  width="100%" height="100%" source="../assets/a_paisaje_boceto.jpg"/> 
+			  width="100%" height="100%" source="../assets/a_paisaje_boceto.jpg"/>
 	<s:Group y="75" width="75" height="25" right="5" id="starGroup" includeIn="zadanieState" visible="{wynikGroupVisible}">
 		<mx:Image width="16" height="16" source="{Images.get().starImg}" verticalCenter="-1" left="0"/>
 		<s:Label text="{this.wynik}" fontSize="20" color="#6C9A0A" fontFamily="Arial" width="50" 
@@ -227,25 +237,34 @@
 		<s:Label text="Pozostało pytań:" fontSize="18" fontFamily="Georgia" x="5" verticalCenter="1" width="135"/>
 		<s:Label text="999" fontSize="20" color="#6C9A0A" fontFamily="Arial" width="50" textAlign="left" id="posostaloLabel" x="145" verticalCenter="2"/>
 	</s:Group>
-	<s:Label includeIn="PreStart,wynikiState" text="Wpisz polecenie" id="polecenie" fontSize="20" fontSize.PreStart="24" width.PreStart="411" height.PreStart="162" y.PreStart="73" verticalCenter.wynikiState="-26" x.PreStart="182" horizontalCenter.wynikiState="-140" verticalAlign.PreStart="middle" textAlign.PreStart="center"/>
-	<s:Button includeIn="PreStart,wynikiState" label="Rozpocznij zadanie" 
-			  skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" 
-			  click="start();"
-			  id='startButton' enabled="false" x.PreStart="314" horizontalCenter.wynikiState="-140" y.PreStart="279" verticalCenter.wynikiState="14"/>
-	<s:Label includeIn="PreStart,wynikiState" x="640" y="73" text="Zasady" fontSize="20" fontSize.PreStart="24"/>
-	<s:Group includeIn="PreStart,wynikiState" bottom="10" right="10" top="100" left="640">
+	<s:Label includeIn="PreStart,wynikiState" x="640" y="73" text="Zasady" fontSize="20" fontSize.PreStart="24" x.wynikiState="326" y.wynikiState="39" text.wynikiState="Wyniki"/>
+<!--	<s:Rect includeIn="wynikiState" 
+			x="{rulesGroup.x}" y="{rulesGroup.y}" width="{rulesGroup.width}" height="{rulesGroup.height}"
+			radiusX="10" radiusY="10">
+		<s:fill>
+			<s:SolidColor color="0xFFFFFF" alpha="0.3"/>
+		</s:fill>
+	</s:Rect>-->
+	<s:Group id='rulesGroup' includeIn="PreStart,wynikiState" top="100" top.wynikiState="73" width.wynikiState="298" left.PreStart="640" right.PreStart="10" horizontalCenter.wynikiState="0" bottom.PreStart="10">
 		<s:layout>
 			<s:VerticalLayout/>
 		</s:layout>
 		<s:Group width="100%" height="25" visible="false">
 		</s:Group>
-		<s:Group width="100%" height="25" id='liczbaPunktowGroup'>
+		<s:Group width="100%" height="25" id='punktyRuleGroup'>
+			<s:layout.wynikiState>
+				<s:HorizontalLayout verticalAlign="middle"/>
+			</s:layout.wynikiState>
 			<mx:Image width="16" height="16" verticalCenter="0" left="0" source="{Images.get().starImg}"/>
-			<s:Label verticalCenter="2" left="20" right="5" text="Musisz zdobyć 20 punktów."  fontSize.PreStart="14"/>
+			<s:Label id='punktyRuleLabel' verticalCenter="2" left="20" right="5" 
+					 text="Musisz zdobyć 20 punktów." fontSize="14" height.wynikiState="100%" verticalAlign.wynikiState="middle" paddingTop.wynikiState="3"/>
+			<mx:Image source="{Images.get().tickImg}" right="5" verticalCenter="0" 
+					  width="16" height="16" includeIn="wynikiState"/>
 		</s:Group>
-		<s:Group width="100%" height="25">
+		<s:Group width="100%" height="25" id='czasRuleGroup'>
 			<mx:Image width="16" height="16" verticalCenter="0" left="0" source="{Images.get().clockImg}"/>
-			<s:Label verticalCenter="2" left="20" right="5" text="Musisz ukończyć zadanie w czasie 999s."  fontSize.PreStart="14"/>
+			<s:Label id='czasRuleLabel' verticalCenter="2" left="20" right="5" 
+					 text="Musisz ukończyć zadanie w czasie 999s." fontSize="14"/>
 		</s:Group>
 
 		<s:Group width="100%" height="25">
@@ -259,7 +278,11 @@
 			 horizontalCenter="0"
 			 id='contentPlayerGroup'>
 	</s:Group>
-	<mx:Image includeIn="zadanieState" x="823" 
+	<mx:Image includeIn="zadanieState,PreStart" 
 			  source="../assets/go-next.png"
-			  click="nastepnePytanie()" verticalCenter="0"/>
+			  click.zadanieState="nastepnePytanie()" verticalCenter="0"
+			  click.PreStart="start();"
+			  id='startButton' enabled="true" enabled.PreStart="false"
+			  verticalCenter.PreStart="0" x.zadanieState="823" horizontalCenter.PreStart="0"/>
+	<s:Label includeIn="PreStart" x="186" y="273" text="Wciśnij aby rozpocząć" fontSize="24"/>
 </s:TitleWindow>

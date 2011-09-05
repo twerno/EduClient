@@ -2,15 +2,16 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 width="400" height="300"
+		 width="600" height="400"
 		 implements="pl.twerno.eduClient.Zadanie.IZadaniePlayer">
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
-
+			
 			import net.twerno.eduClient.RO.pytanie.OdpPytanieZamkniete;
 			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
-
+			import net.twerno.eduClient.RO.sesja.SesjaOtwartaRO;
+			
 			import pl.twerno.eduClient.Zadanie.IZadaniePlayer;
 			import pl.twerno.eduClient.Zadanie.ZadanieWindow;
 
@@ -19,7 +20,7 @@
 			[Bindable]
 			private var odpowiedzi:ArrayCollection = new ArrayCollection();
 
-			public function init(owner:ZadanieWindow):void {
+			public function init(owner:ZadanieWindow, sesja:SesjaOtwartaRO, listaPytan:ArrayCollection):void {
 				// init...
 			}
 

@@ -3,12 +3,12 @@
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx" 
 				autoDrawBackground="false" minHeight="35"
-				dataChange="itemrenderer1_dataChangeHandler(event)">
+				dataChange="dataChangeHandler(event)">
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
 
-			protected function itemrenderer1_dataChangeHandler(event:FlexEvent):void {
+			protected function dataChangeHandler(event:FlexEvent):void {
 				if (data == null) return;
 				
 				var odp:ZadanieQuiz_OdpowiedziItem = data as ZadanieQuiz_OdpowiedziItem;

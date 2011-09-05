@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 minHeight="25" minWidth="30">
+	<fx:Script>
+		<![CDATA[
+			import pl.twerno.commLib.Images;
+
+			[Bindable]
+			public var label:String = "label";
+			
+			private var _sound:Sound;
+			
+			public function set sound(sound:Class):void {
+				_sound = new sound() as Sound;
+			}
+			
+			protected function sound_clickHandler(event:MouseEvent):void {
+				if (_sound)
+					_sound.play();
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:Image width="16" height="16" left="5" verticalCenter="0" 
+			  source="{Images.get().musicImg}"
+			  click="sound_clickHandler(event)"/>
+	<s:Label verticalCenter="2" left="25" text="{this.label}"/>
+</s:Group>

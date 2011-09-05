@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="false" minHeight="35"
+				dataChange="dataChangeHandler(event)" 
+				xmlns:styles="pl.twerno.commLib.primitives.styles.*" 
+				xmlns:primitives="pl.twerno.commLib.primitives.*"
+				dragDrop="itemrenderer1_dragDropHandler(event)"
+				dragEnter="itemrenderer1_dragEnterHandler(event)"
+				dragExit="itemrenderer1_dragExitHandler(event)"
+				dragOver="itemrenderer1_dragOverHandler(event)"
+				mouseOver="itemrenderer1_mouseOverHandler(event)"
+				mouseOut="itemrenderer1_mouseOutHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+
+			protected function dataChangeHandler(event:FlexEvent):void {
+				if (data == null) {
+					rect.currentStyle = greenStyle;
+					return;
+				}
+				
+				var odp:ZadaniePosortuj_KategoriaItem = data as ZadaniePosortuj_KategoriaItem;
+				
+				if(odp.poprawne) {
+					rect.currentStyle = greenStyle;
+				} else {
+					rect.currentStyle = redStyle;
+//					stroke.color = 0xFF0000;
+//					stroke.weight = 3;
+				}
+			}
+
+
+			protected function itemrenderer1_dragDropHandler(event:DragEvent):void {
+				Alert.show('dropped on: ' +(data as ZadaniePosortuj_KategoriaItem).kategoria);
+			}
+
+
+			protected function itemrenderer1_dragEnterHandler(event:DragEvent):void {
+				Alert.show('a');
+				rect.currentStyle = redStyle;
+			}
+
+
+			protected function itemrenderer1_dragExitHandler(event:DragEvent):void {
+				Alert.show('b');
+				rect.currentStyle = greenStyle;
+			}
+
+
+			protected function itemrenderer1_dragOverHandler(event:DragEvent):void {
+				Alert.show('c');
+			}
+
+
+			protected function itemrenderer1_mouseOverHandler(event:MouseEvent):void
+			{
+				rect.currentStyle = redStyle;
+			}
+
+
+			protected function itemrenderer1_mouseOutHandler(event:MouseEvent):void
+			{
+				rect.currentStyle = greenStyle;
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<styles:LightRedStyle   id='redStyle'/>
+		<styles:LightGreenStyle id='greenStyle'/>
+	</fx:Declarations>
+	
+	<primitives:StatefulGradientRect id='rect' currentStyle="{greenStyle}"
+									 width='100%' top='3' bottom="3"/>
+
+<!--	<s:Rect width="100%" top="3" bottom="3" id='rect' visible="false">
+		<s:stroke>
+			<s:SolidColorStroke id='stroke' color="0xFF0000" weight="3"/>
+		</s:stroke>
+	</s:Rect>-->
+
+	<s:Label id="lblData" left="5" right="5" verticalCenter="2"
+			 text="{(this.data as ZadaniePosortuj_KategoriaItem).kategoria}" fontSize="16"/>
+</s:ItemRenderer>

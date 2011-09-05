@@ -38,7 +38,7 @@ package pl.twerno.eduClient.Env {
 		}
 		
 		public static function dajFaultString2(info: String, faultEvent:FaultEvent, token:RpcToken):String {
-			return '[' +token.destination +'.' +token.remoteMethod +'()] ' 
+			return '[ ' +token.destination +'.' +token.remoteMethod +'() ] ' 
 				+info+'\n'
 				+'<' +faultEvent.fault.faultCode +'>\n'
 				+faultEvent.fault.faultString+'\n\n'

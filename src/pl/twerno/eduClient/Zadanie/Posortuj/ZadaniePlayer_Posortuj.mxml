@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="600" height="400"
+		 implements="pl.twerno.eduClient.Zadanie.IZadaniePlayer" xmlns:primitives="pl.twerno.commLib.primitives.*" xmlns:styles="pl.twerno.commLib.primitives.styles.*" xmlns:Posortuj="pl.twerno.eduClient.Zadanie.Posortuj.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.DragEvent;
+			
+			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
+			import net.twerno.eduClient.RO.sesja.SesjaOtwartaRO;
+			
+			import pl.twerno.eduClient.Zadanie.ZadanieWindow;
+
+			private var pytanie:PytanieZamkniete;
+
+			[Bindable]
+			private var kategorie:ArrayCollection = new ArrayCollection();
+
+			private var zadanieWindow:ZadanieWindow;
+
+			private var wybranaKategoria:ZadaniePosortuj_KategoriaItem;
+
+			public function init(owner:ZadanieWindow, sesja:SesjaOtwartaRO, listaPytan:ArrayCollection):void {
+				this.zadanieWindow = owner;
+
+				var dict:Dictionary = new Dictionary();
+				for each (var pytanie:PytanieZamkniete in listaPytan)
+					if (dict[pytanie.kategoria] != 'D') {
+						kategorie.addItem(new ZadaniePosortuj_KategoriaItem(pytanie.kategoria));
+						dict[pytanie.kategoria] = 'D';
+					}
+			}
+
+			public function initPytanie(pytanie:PytanieZamkniete):void {
+				this.pytanie = pytanie;
+				cleanKategorie();
+				
+				// new Item
+				
+//				trescPytania.text = pytanie.trescPytania;
+			}
+
+			private function cleanKategorie():void {
+				wybranaKategoria = null;
+				kategorie.disableAutoUpdate();
+				for each (var kategoria:ZadaniePosortuj_KategoriaItem in kategorie)
+					kategoria.poprawne = true;
+				kategorie.enableAutoUpdate();
+			}
+
+			public function sprawdz():Boolean {
+				var correct:Boolean = (pytanie.kategoria == wybranaKategoria.kategoria);
+				wybranaKategoria.poprawne = correct;
+				return correct;
+			}
+
+			protected function group1_dragStartHandler(event:DragEvent):void {
+				trace(event);
+			}
+
+			protected function mouseDownHandler(event:MouseEvent):void {
+				draggedItem.startDrag();
+			}
+
+			protected function mouseUpHandler(event:MouseEvent):void {
+				// sprawdz czy jest nad lista
+				// sprawdz czy jest nad prawidlowym elementem
+				// sprawdze element
+				// jesli poprawne wywolaj nastepneZadanie
+				// 
+				draggedItem.stopDrag();
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<styles:LightBlueStyle id="lightBlue"/>
+	</fx:Declarations>
+	<Posortuj:ZadaniePosortuj_KategoriaRenderer x="160" y="309">
+	</Posortuj:ZadaniePosortuj_KategoriaRenderer>
+	<s:List x="0" y="0" width="230" height="100%" dataProvider="{kategorie}"
+			borderVisible="false" contentBackgroundAlpha="0.0"
+			itemRenderer="pl.twerno.eduClient.Zadanie.Posortuj.ZadaniePosortuj_KategoriaRenderer"
+			dragEnter="Alert.show('enter')"
+			dragMoveEnabled="true"/>
+	<s:Group id='draggedItem'
+			 verticalCenter="0" horizontalCenter="100" minHeight="35" minWidth="100"
+			 dragStart="group1_dragStartHandler(event)"
+			 mouseDown="mouseDownHandler(event)"
+			 mouseUp="mouseUpHandler(event)">
+		<primitives:StatefulGradientRect width="100%" height="100%" currentStyle="{lightBlue}"/>
+		<s:Label left='5' right="5" top="7" bottom="3" text='pytanie' fontSize="22"
+				 textAlign="center">
+		</s:Label>
+	</s:Group>
+</s:Group>
