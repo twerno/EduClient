@@ -90,8 +90,7 @@
 	<fx:Declarations>
 	</fx:Declarations>
 
-	<mx:Image source="@Embed(source='assets/TREES.svg')" bottom="10" height="163" left="10" width="150"/>
-	<!--<mx:Image x="10" y="10" source="@Embed(source='assets/Weather.png')"/>-->
+	<mx:Image source="@Embed(source='assets/TREES.png')" bottom="10" height="163" left="10" width="150"/>
 	
 	<s:List id='masterPanelMenu'
 			left="10" top="35" 

@@ -85,6 +85,15 @@ package pl.twerno.eduClient.UserEnv {
 			zbioryPytanList.enableAutoUpdate();
 		}
 		
+		public function wyliczMaxIloscPytan():void {
+			var maxIloscPytan: int = 0;
+			for each (var z:ZbiorPytan in dostepneZbioryPytanTypu)
+				if (wybraneZadanie.has_zbiorPytan(z.id))
+					maxIloscPytan += z.size;
+
+			this.maxIloscPytan = maxIloscPytan;
+		}
+		
 		public function NauczycielEnv() {
 		}
 	}

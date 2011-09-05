@@ -47,7 +47,7 @@
 					env.nauczycielEnv.wybraneZadanie.iloscPytan = 0;
 					for each (var zzb:Zadanie_ZbiorPytan in env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan)
 						env.nauczycielEnv.wybraneZadanie.iloscPytan += zzb.iloscPytan;
-					wyliczMaxIloscPytan();
+					env.nauczycielEnv.wyliczMaxIloscPytan();	
 				}
 			}
 
@@ -68,15 +68,6 @@
 					chBox.selected = false;
 					currentState   = 'Main';
 				}
-			}
-
-			private function wyliczMaxIloscPytan():void {
-				var maxIloscPytan: int = 0;
-				for each (var z:ZbiorPytan in env.nauczycielEnv.dostepneZbioryPytanTypu)
-					if (env.nauczycielEnv.wybraneZadanie.has_zbiorPytan(z.id))
-						maxIloscPytan += z.size;
-					
-				env.nauczycielEnv.maxIloscPytan = maxIloscPytan;
 			}
 
 			protected function addedToStageHandler(event:Event):void {

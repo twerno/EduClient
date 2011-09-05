@@ -140,7 +140,7 @@
 	</fx:Declarations>
 
 	<s:Panel height="245" title="Zarejestruj się" styleName="GreenStyle" width="250" x="10" y="10">
-		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.svg')" 
+		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.png')" 
 				  alpha="0.3" height="44" maintainAspectRatio="false"/>
 		<mx:Form height="164" top="0" left="0" right="0">
 			<mx:FormItem label="Nazwa" width="100%">
@@ -163,7 +163,7 @@
 	</s:Panel>
 	
 	<s:Panel title="Zaloguj się" styleName="GreenStyle" width="250" height="245" x="270" y="10">
-		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.svg')" 
+		<mx:Image bottom="-1" left="0" right="0" source="@Embed(source='assets/grass.png')" 
 				  alpha="0.3" height="44" maintainAspectRatio="false"/>
 		<mx:Form height="113" top="0" left="0" right="0" height.incorrectLogin="145" top.incorrectLogin="0" left.incorrectLogin="0" right.incorrectLogin="0">
 			<mx:FormItem label="Nazwa" width="100%">
