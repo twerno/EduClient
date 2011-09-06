@@ -15,6 +15,8 @@
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			
 			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
 			import net.twerno.eduClient.RO.sesja.SesjaOtwartaRO;
@@ -63,6 +65,8 @@
 			private var wynikGroupVisible:Boolean = true;
 			
 			private var alert:Alert;
+			
+			private var zapisujeOdpowiedz:Boolean = false;
 
 			protected function closeHandler(event:CloseEvent):void {
 				if (currentState == 'wynikiState' || currentState == 'PreStart') {
@@ -141,7 +145,7 @@
 				timer.stop();
 			}
 
-			public function wznow():void {
+			public function resume():void {
 				timer.start();
 			}
 
@@ -166,22 +170,42 @@
 			}
 			
 			public function nastepnePytanie():void {
-				var poprawnaOdpowiedz:Boolean = zadaniePlayer.sprawdz();
-				dodajPunkty(currentPytanie, poprawnaOdpowiedz);
-				if (!poprawnaOdpowiedz &&
-					uczenEnv.sesjaOtwarta.zadanie.trybSprawdzenia == Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS)
-					return;
+				if (zapisujeOdpowiedz) return;
 				
-				var token:RpcToken = env.eduClient
-					.sesjaService
-					.zapiszOdpowiedz(
-						uczenEnv.sesjaOtwarta.sesjaId,
-						currentPytanie.id,
-						poprawnaOdpowiedz,
-						liczbaPodejsc);
-
-				token.newResponder(null, env.FaultHandler);
+				zapisujeOdpowiedz = true;
+				try {
+					pause();
+					var poprawnaOdpowiedz:Boolean = zadaniePlayer.sprawdz();
+					dodajPunkty(currentPytanie, poprawnaOdpowiedz);
+					if (!poprawnaOdpowiedz &&
+						uczenEnv.sesjaOtwarta.zadanie.trybSprawdzenia == Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS)
+						return;
+					
+					var token:RpcToken = env.eduClient
+						.sesjaService
+						.zapiszOdpowiedz(
+							uczenEnv.sesjaOtwarta.sesjaId,
+							currentPytanie.id,
+							poprawnaOdpowiedz,
+							liczbaPodejsc);
+					
+					token.newResponder(zapiszOdpowiedzHandler, zapiszOdpowiedzFault);
+				} catch (e:Error) {
+					resume();
+					zapisujeOdpowiedz = false;
+					throw e;
+				}
+			}
+			
+			private function zapiszOdpowiedzHandler(event:ResultEvent, token:RpcToken):void {
+				zapisujeOdpowiedz = false;
 				wczytajPytanie(currentPytanieIdx +1);
+			}
+			
+			private function zapiszOdpowiedzFault(fault:FaultEvent, token:RpcToken):void {
+				zapisujeOdpowiedz = false;
+				resume();
+				env.FaultHandler(fault, token);
 			}
 
 			protected function wczytajPytanie(idx:int):void {
@@ -193,6 +217,7 @@
 					currentPytanie    = listaPytan.getItemAt(idx) as PytanieZamkniete;
 					posostaloLabel.text = (listaPytan.length -currentPytanieIdx).toString();
 					zadaniePlayer.initPytanie(currentPytanie);
+					resume();
 				}
 			}
 
@@ -240,16 +265,19 @@
 			}
 			
 			private function wpiszCzas(info:ZasadyInfo, czas:int):void {
-				if (czas == 0)
-					this.removeElement(info);
+				if (czas == 0) {
+//					this.removeElement(info);
+					info.visible = false;
+				}
 				else
 					info.text = 'Ukończ w czasie ' +czas +'s.';
 			}
 			
 			private function wpiszPunkty(info:ZasadyInfo, punkty:int):void {
-				if (punkty == 0)
-					this.removeElement(info);
-				else {
+				if (punkty == 0) {
+//					this.removeElement(info);
+					info.visible = false;
+				} else {
 					info.text = 'Zdobądź przynajmniej ' +punkty;
 					if (punkty == 1)
 						info.text += ' punkt.';

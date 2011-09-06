@@ -2,50 +2,99 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx" 
-				autoDrawBackground="true" height="35"
-				dataChange="itemrenderer1_dataChangeHandler(event)" width="585">
+				autoDrawBackground="true" height="82"
+				dataChange="dataChangeHandler(event)" 
+				width="661" 
+				xmlns:Zadanie="pl.twerno.eduClient.Zadanie.*" 
+				xmlns:uczen="pl.twerno.eduClient.panels.uczen.*">
 	<fx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
 			
 			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie;
+			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_Stats;
+			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_WithStats;
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
 			
 			import pl.twerno.commLib.Images;
 			import pl.twerno.eduClient.Env.Env;
 			
 			private function getObowiazkoweStr():String {
 				if (data == null) return '';
-				var result:String = 'obowiązkowe: ' +(((data as ZadaneZadanie).obowiazkowe) ? 'TAK' : 'NIE'); 
+				var result:String = 'obowiązkowe: ' +(((data as ZadaneZadanie_WithStats).zadanie.obowiazkowe) ? 'TAK' : 'NIE'); 
 				return result;
 			}
 			
 			private function getDtDo():String {
 				if (data == null) return '';
-				if ((data as ZadaneZadanie).dtDo == null)
+				if ((data as ZadaneZadanie_WithStats).zadanie.dtDo == null)
 					return 'Brak terminu';
 
-				return 'termin upływa: ' +(data as ZadaneZadanie).dtDo.toDateString();
+				return 'termin upływa: ' +(data as ZadaneZadanie_WithStats).zadanie.dtDo.toDateString();
 			}
 
-			protected function itemrenderer1_dataChangeHandler(event:FlexEvent):void {
+			private function wypelnijWyniki():void {
+				var stats:ZadaneZadanie_Stats = (data as ZadaneZadanie_WithStats).zadanie_stats;
+				wynikInfo.init(Images.get().starImg, 'Zdobyte punkty', 
+					stats.maxWynik.toString(), 
+					stats.punkty_bronze, stats.punkty_silver, stats.punkty_gold);
+				czasInfo.init(Images.get().clockImg, 'Czas', 
+					stats.minCzas.toString(),
+					stats.czas_bronze, stats.czas_silver, stats.czas_gold);
+				if (stats.bezblednie)
+					bezblInfo.init(Images.get().controllerImg, 'Bezbłędnie', '', false, false, false);
+				else
+					bezblInfo.visible = false;
+			}
+
+			protected function dataChangeHandler(event:FlexEvent):void {
 				obowiazkowe.text = getObowiazkoweStr();
 				termin.text = getDtDo();
+				wypelnijWyniki();
 			}
 
 			
 			protected function rozwiaz_clickHandler(event:MouseEvent):void {
-				Env.get.uczenEnv.otworzSesje((data as ZadaneZadanie).id);					
+				Env.get.uczenEnv.otworzSesje((data as ZadaneZadanie_WithStats).zadanie.id);					
+			}
+
+			protected function tablicaWynikow_Handler(event:MouseEvent):void {
+				var token:RpcToken = Env.get.eduClient.zadanieService.dajTabliceWynikow((data as ZadaneZadanie_WithStats).zadanie.id);
+				token.newResponder(hang, Env.get.FaultHandler);
+			}
+			
+			private function hang(result:ResultEvent, token:RpcToken):void {
+				trace(result.toString());
 			}
 
 		]]>
 	</fx:Script>
+	<s:states>
+		<s:State name="State1"/>
+	</s:states>
 
-	<mx:Image verticalCenter="0" left="15" source="{Images.get().houseImg}"/>
-	<s:Label verticalCenter="2" left="40" width="180" text="{(data as ZadaneZadanie).nazwa}"/>
-	<s:Label id='obowiazkowe' verticalCenter="2" left="220" width="125" text=""/>
-	<s:Label id='termin' verticalCenter="2" left="355" width="125" text=""/>
+	<mx:Image left="15" source="{Images.get().houseImg}" width="16" height="16" top="12"/>
+	<s:Label top="14" left="40" width="180" text="{(data as ZadaneZadanie_WithStats).zadanie.nazwa}"/>
+	<s:Label id='obowiazkowe' top="9" left="220" width="125" text=""/>
+	<s:Label id='termin' top="9" left="355" width="125" text=""/>
 	<s:Button x="500" y="6" skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" 
 			  label="Rozwiąż"
 			  click="rozwiaz_clickHandler(event)"/>
+	<s:Button x="596" y="6" skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" 
+			  label="Tablica wyników"
+			  click="tablicaWynikow_Handler(event)"/>
+
+	<s:Group top="35" left="30" width="100%">
+		<s:layout>
+			<s:HorizontalLayout gap="45"/>
+		</s:layout>
+
+		<uczen:ZasadyWyniki_Info id='wynikInfo'/>
+		<uczen:ZasadyWyniki_Info id='czasInfo'/>
+		<uczen:ZasadyWyniki_Info id='bezblInfo'/>
+	</s:Group>
 	
 </s:ItemRenderer>

@@ -25,6 +25,7 @@
 			import pl.twerno.eduClient.panels.nauczyciel.ZadaneZadaniePanel;
 			import pl.twerno.eduClient.panels.nauczyciel.ZadaniaPanel;
 			import pl.twerno.eduClient.panels.nauczyciel.ZbioryPytanPanel;
+			import pl.twerno.eduClient.panels.uczen.RozwiazaneZadaniePanel;
 			import pl.twerno.eduClient.panels.uczen.ZadaneZadaniaPanel;
 			
 			import spark.events.IndexChangeEvent;
@@ -64,8 +65,9 @@
 					addPanel('Zbiory pytań',   Images.get().pluginImg,      new ZbioryPytanPanel());
 				}
 				if (env.account.hasRole(Const.ROLE_UCZEN)) {
-					addPanel('Zadania', Images.get().houseImg, new ZadaneZadaniaPanel());
-				}					
+					addPanel('Zadania',    Images.get().houseImg, new ZadaneZadaniaPanel());
+					addPanel('Rozwiązane', Images.get().tickImg,  new RozwiazaneZadaniePanel());
+				}
 
 				masterPanelMenu.selectedIndex = 0;
 				masterPanelMenu_changeHandler(null);

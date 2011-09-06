@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 minWidth="100" height="25">
+	<fx:Script>
+		<![CDATA[
+			import pl.twerno.commLib.Images;
+			
+			[Bindable] public var leftIcon:Class;
+			[Bindable] public var text:String;
+			[Bindable] public var wynik:String;
+			
+			[Bindable] public var level_1:Class = Images.get().medal_bronzeImg;
+			[Bindable] public var level_2:Class = Images.get().medal_silverImg;
+			[Bindable] public var level_3:Class = Images.get().medal_goldImg;
+			
+			public function init(leftIcon:Class, text:String, wynik:String, 
+								 level_1:Boolean, level_2:Boolean, level_3:Boolean):void {
+				this.leftIcon = leftIcon;
+				this.text     = (wynik != '') ? (text +': '+wynik) : text;
+				this.wynik    = wynik;
+				
+				level1Img.visible = level_1;
+				level2Img.visible = level_2;
+				level3Img.visible = level_3;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:Image x="5" verticalCenter="0" source="{leftIcon}" width="16" height="16"/>
+	<s:Label  verticalCenter="2" left="30" text="{text}" id="textLabel"/>
+	<mx:Image id='level1Img' x="{textLabel.width +36}" verticalCenter="0" source="{level_1}" width="16" height="16"/>
+	<mx:Image id='level2Img' x="{textLabel.width +52}" verticalCenter="0" source="{level_2}" width="16" height="16"/>
+	<mx:Image id='level3Img' x="{textLabel.width +68}" verticalCenter="0" source="{level_3}" width="16" height="16"/>
+</s:Group>

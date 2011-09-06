@@ -105,7 +105,7 @@
 				
 				var win:ZadajZadanieWindow = PopUpManager.createPopUp(this, ZadajZadanieWindow, true) as ZadajZadanieWindow;
 				win.init(zadanie);
-				PopUpManager.centerPopUp(win);
+				env.openPopUp(win);
 			}
 			
 			private function wyborPytan_Changed():void {

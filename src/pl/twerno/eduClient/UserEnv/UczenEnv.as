@@ -13,6 +13,7 @@ package pl.twerno.eduClient.UserEnv {
 	[Bindable]
 	public class UczenEnv extends EventDispatcher implements IUserEnv {
 		
+		//ZadaneZadanie_WithStats
 		public var zadaniaList:ArrayCollection = new ArrayCollection();
 		
 		public var sesjaOtwarta:SesjaOtwartaRO;		
