@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   width="800" height="500"
+			   title="Tablica wyników"
+			   close="closeHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			
+			import pl.twerno.eduClient.Env.Env;
+			
+			[Bindable]
+			private var tablicaWynikow:ArrayCollection = new ArrayCollection();
+			
+			public function init(zadaneZadanieId:String):void {
+				tablicaWynikow.removeAll();
+				var token:RpcToken = Env.get.eduClient.zadanieService.dajTabliceWynikow(zadaneZadanieId);
+				token.newResponder(dajTabliceWynikow_Handler, Env.get.FaultHandler);
+			}
+			
+			private function dajTabliceWynikow_Handler(event:ResultEvent, token:RpcToken):void {
+				tablicaWynikow = event.result as ArrayCollection;
+			}
+
+			protected function closeHandler(event:CloseEvent):void {
+				Env.get.zamknijPopUp();
+			}
+
+		]]>
+	</fx:Script>
+	
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:DataGrid right="5" bottom="5"
+				 dataProvider="{tablicaWynikow}" top="5" left="5">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Użytkownik"      dataField="username"/>
+			<mx:DataGridColumn headerText="Bezbłędnie"      dataField="bezblednie"/>
+			<mx:DataGridColumn headerText="Najlepszy wynik" dataField="maxWynik" sortDescending="true"/>
+			<mx:DataGridColumn headerText="Medale za wynik" />
+			<mx:DataGridColumn headerText="Najlepszy Czas"  dataField="minCzas"/>
+			<mx:DataGridColumn headerText="Medale za czas"  />
+			
+		</mx:columns>
+	</mx:DataGrid>
+</s:TitleWindow>

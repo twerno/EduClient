@@ -11,10 +11,6 @@
 			[Bindable] public var text:String;
 			[Bindable] public var wynik:String;
 			
-			[Bindable] public var level_1:Class = Images.get().medal_bronzeImg;
-			[Bindable] public var level_2:Class = Images.get().medal_silverImg;
-			[Bindable] public var level_3:Class = Images.get().medal_goldImg;
-			
 			public function init(leftIcon:Class, text:String, wynik:String, 
 								 level_1:Boolean, level_2:Boolean, level_3:Boolean):void {
 				this.leftIcon = leftIcon;
@@ -32,7 +28,7 @@
 	</fx:Declarations>
 	<mx:Image x="5" verticalCenter="0" source="{leftIcon}" width="16" height="16"/>
 	<s:Label  verticalCenter="2" left="30" text="{text}" id="textLabel"/>
-	<mx:Image id='level1Img' x="{textLabel.width +36}" verticalCenter="0" source="{level_1}" width="16" height="16"/>
-	<mx:Image id='level2Img' x="{textLabel.width +52}" verticalCenter="0" source="{level_2}" width="16" height="16"/>
-	<mx:Image id='level3Img' x="{textLabel.width +68}" verticalCenter="0" source="{level_3}" width="16" height="16"/>
+	<mx:Image id='level1Img' x="{textLabel.width +36}" verticalCenter="0" source="{Images.get().medal_bronzeImg}" width="16" height="16"/>
+	<mx:Image id='level2Img' x="{textLabel.width +52}" verticalCenter="0" source="{Images.get().medal_silverImg}" width="16" height="16"/>
+	<mx:Image id='level3Img' x="{textLabel.width +68}" verticalCenter="0" source="{Images.get().medal_goldImg}"   width="16" height="16"/>
 </s:Group>

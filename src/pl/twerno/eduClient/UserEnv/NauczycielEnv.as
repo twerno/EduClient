@@ -4,6 +4,8 @@ package pl.twerno.eduClient.UserEnv {
 	import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
 	import net.twerno.eduClient.RO.pytanie.ZbiorPytan;
 	import net.twerno.eduClient.RO.zadanie.Zadanie;
+	import net.twerno.eduClient.RO.zadanie.Zadanie_ZbiorPytan;
+	import net.twerno.eduClient.consts.Const;
 	
 	[Bindable]
 	public class NauczycielEnv implements IUserEnv {
@@ -26,6 +28,7 @@ package pl.twerno.eduClient.UserEnv {
 		
 		public var maxIloscPytan:int = 0;
 		
+		public var wynikiList:ArrayCollection = new ArrayCollection();
 		
 		public function clean():void {
 			zbioryPytanList.removeAll();
@@ -37,6 +40,7 @@ package pl.twerno.eduClient.UserEnv {
 			wybraneGrupyDoZadania.removeAll();
 			zadaneZadaniaList.removeAll();
 			maxIloscPytan = 0;
+			wynikiList.removeAll();
 		}
 
 		
@@ -94,6 +98,17 @@ package pl.twerno.eduClient.UserEnv {
 			this.maxIloscPytan = maxIloscPytan;
 		}
 		
+		public function wyliczIloscPytan():void {
+			if (!wybraneZadanie)
+				throw new Error('Zadanie jest null');
+			var result:int = 0;
+			if (wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO) {
+				for each (var zzb:Zadanie_ZbiorPytan in wybraneZadanie.zadanie_zbioryPytan)
+					result += zzb.iloscPytan;
+				wybraneZadanie.iloscPytan = result;
+			}
+		}
+
 		public function NauczycielEnv() {
 		}
 	}

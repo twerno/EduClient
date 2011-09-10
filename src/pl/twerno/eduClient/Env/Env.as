@@ -26,6 +26,9 @@ package pl.twerno.eduClient.Env {
 
 		public var eduClient : EduClient = new EduClient(endPoint);
 		
+		[Embed(source="conf/Conf.xml")]
+		private var conf:Class;
+		
 		[Bindable]
 		public var adminEnv:AdminEnv = new AdminEnv();
 		
@@ -40,6 +43,7 @@ package pl.twerno.eduClient.Env {
 		public var masterPanel:MasterPanel;
 		
 		private var _loggedAccount : Account;
+
 		public function get account():Account {return _loggedAccount}
 		
 		private var _openedPopUp:IFlexDisplayObject = null;
@@ -91,7 +95,6 @@ package pl.twerno.eduClient.Env {
 			}
 		}
 		
-		
 		private static var _env : Env;
 		public static function get get():Env {
 			if (!_env) {_env = new Env()}
@@ -99,9 +102,7 @@ package pl.twerno.eduClient.Env {
 		}
 
 		public function Env() {
-			if (_env) {
-				throw new Error('Env może być tylko jeden.');
-			}
+			if (_env) throw new Error('Env może być tylko jeden.');
 		}
 	}
 }

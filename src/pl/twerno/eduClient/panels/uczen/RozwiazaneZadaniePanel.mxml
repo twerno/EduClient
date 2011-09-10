@@ -13,6 +13,8 @@
 			
 			import net.twerno.eduClient.rpc.tokens.RpcToken;
 			
+			import pl.twerno.commLib.helpers.ObjectHelper;
+			
 			public override function init():void {
 				env.uczenEnv.zadaniaList.removeAll();
 				var token:RpcToken = env.eduClient.zadanieService.dajZadaneMi(true);

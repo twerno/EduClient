@@ -5,7 +5,8 @@
 			   width="950" height="600" 
 			   currentState="PreStart"
 			   verticalCenter="0"
-			   horizontalCenter="0" xmlns:Zadanie="pl.twerno.eduClient.Zadanie.*">
+			   horizontalCenter="0"
+			   xmlns:Zadanie="pl.twerno.eduClient.Zadanie.*">
 	<fx:Script>
 		<![CDATA[
 			import flash.events.TimerEvent;
@@ -20,7 +21,6 @@
 			
 			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
 			import net.twerno.eduClient.RO.sesja.SesjaOtwartaRO;
-			import net.twerno.eduClient.RO.sesja.Sesja_Zasady;
 			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_Zasady;
 			import net.twerno.eduClient.RO.zadanie.Zadanie;
 			import net.twerno.eduClient.consts.Const;
@@ -172,15 +172,16 @@
 			public function nastepnePytanie():void {
 				if (zapisujeOdpowiedz) return;
 				
-				zapisujeOdpowiedz = true;
 				try {
-					pause();
+//					pause();
 					var poprawnaOdpowiedz:Boolean = zadaniePlayer.sprawdz();
 					dodajPunkty(currentPytanie, poprawnaOdpowiedz);
 					if (!poprawnaOdpowiedz &&
 						uczenEnv.sesjaOtwarta.zadanie.trybSprawdzenia == Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS)
 						return;
+
 					
+					zapisujeOdpowiedz = true;
 					var token:RpcToken = env.eduClient
 						.sesjaService
 						.zapiszOdpowiedz(
@@ -204,7 +205,7 @@
 			
 			private function zapiszOdpowiedzFault(fault:FaultEvent, token:RpcToken):void {
 				zapisujeOdpowiedz = false;
-				resume();
+//				resume();
 				env.FaultHandler(fault, token);
 			}
 
@@ -217,7 +218,7 @@
 					currentPytanie    = listaPytan.getItemAt(idx) as PytanieZamkniete;
 					posostaloLabel.text = (listaPytan.length -currentPytanieIdx).toString();
 					zadaniePlayer.initPytanie(currentPytanie);
-					resume();
+//					resume();
 				}
 			}
 

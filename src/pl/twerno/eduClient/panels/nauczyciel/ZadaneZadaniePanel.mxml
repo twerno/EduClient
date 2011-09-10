@@ -28,6 +28,7 @@
 				 dataProvider="{env.nauczycielEnv.zadaneZadaniaList}">
 		<mx:columns>
 			<mx:DataGridColumn headerText="Nazwa" dataField="nazwa"/>
+			<mx:DataGridColumn headerText="" itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.ZadanieWynikiShowRenderer"/>
 		</mx:columns>
 	</mx:DataGrid>
 

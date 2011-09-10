@@ -10,6 +10,7 @@ package pl.twerno.eduClient.Zadanie {
 	import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_ZbiorPytan;
 	import net.twerno.eduClient.consts.Const;
 	
+	import pl.twerno.commLib.helpers.MathHelper;
 	import pl.twerno.eduClient.panels.uczen.ZamknijZadanieEvent;
 
 	public class AsyncListaPytanBuilder extends EventDispatcher {
@@ -48,10 +49,10 @@ package pl.twerno.eduClient.Zadanie {
 										 -pytania_znane_count 
 										 -pytania_opanowane_count;
 
-			result.addAll(wybierzPytaniaZeZbioru(zbiory[ZNAJOMOSC_NISKA],   pytania_nieznane_count));
-			result.addAll(wybierzPytaniaZeZbioru(zbiory[ZNAJOMOSC_SREDNIA], pytania_znane_count));
-			result.addAll(wybierzPytaniaZeZbioru(zbiory[ZNAJOMOSC_WYSOKA],  pytania_opanowane_count));
-			result.addAll(wybierzPytaniaZeZbioru(sesjaOtwarta.pytania,      pytanie_pozostale));
+			result.addAll(wylosujPytania(zbiory[ZNAJOMOSC_NISKA],   pytania_nieznane_count));
+			result.addAll(wylosujPytania(zbiory[ZNAJOMOSC_SREDNIA], pytania_znane_count));
+			result.addAll(wylosujPytania(zbiory[ZNAJOMOSC_WYSOKA],  pytania_opanowane_count));
+			result.addAll(wylosujPytania(sesjaOtwarta.pytania,      pytanie_pozostale));
 
 			// poinformuj o zmianach
 			var event:ListaPytanEvent = new ListaPytanEvent(ListaPytanEvent.UTWORZONA);
@@ -68,7 +69,7 @@ package pl.twerno.eduClient.Zadanie {
 			for (var o:Object in zbiory) {
 				zzzp = o as ZadaneZadanie_ZbiorPytan;
 				result.addAll(
-					wybierzPytaniaZeZbioru(zbiory[zzzp], zzzp.iloscPytan));
+					wylosujPytania(zbiory[zzzp], zzzp.iloscPytan));
 			}
 
 			// poinformuj o zmianach
@@ -132,31 +133,22 @@ package pl.twerno.eduClient.Zadanie {
 			return zbiory;
 		}
 
-		private function wybierzPytaniaZeZbioru(pytania:ArrayCollection, iloscPytan:int):ArrayCollection {
-			if (pytania.length == iloscPytan)
-				return pytania;
+		private function wylosujPytania(pytania:ArrayCollection, iloscPytan:int):ArrayCollection {
 			if (pytania.length < iloscPytan)
 				throw new Error("ilość pytań w zbiorze: " +pytania.length.toString() +" oczekiwano co najmniej: " +iloscPytan.toString());
-			if (iloscPytan < 0) 
+			if (iloscPytan < 0)
 				throw new Error("ilośc pytań nie może być mniejsza niż 0");
+			if (pytania.length == 0)
+				throw new Error('zbiór pytań jest pusty');
 
 			var result:ArrayCollection = new ArrayCollection();
-			var pozostalo:int = iloscPytan;
-			var wylosowaneIndexy:Dictionary = new Dictionary();
-			var szansa:Number;
-			
-			while (pozostalo > 0) {
-				szansa = pytania.length/(pytania.length -pozostalo);
-				for each (var pytanie:PytanieZamkniete in pytania) {
-					if (pozostalo > 0 &&
-						wylosowaneIndexy[pytanie.id] != 'T' &&
-					    szansa >= Math.random()) {
-						result.addItem(pytanie);
-						pozostalo -= 1;
-						wylosowaneIndexy[pytanie.id] == 'T';
-					}
-				}
+			var idx:int;
+			for (var i:int = 0; i < iloscPytan; i++) {
+				idx = MathHelper.nextInt(pytania.length -1);
+				result.addItem(pytania.getItemAt(idx));
+				pytania.removeItemAt(idx);
 			}
+
 			return result;
 		}
 	}

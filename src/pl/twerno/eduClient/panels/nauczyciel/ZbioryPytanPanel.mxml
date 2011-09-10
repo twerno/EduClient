@@ -155,9 +155,9 @@
 			<mx:FormItem label="Nazwa" width="100%">
 				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.opis}"/>
 			</mx:FormItem>
-			<mx:FormItem label="Typ zadania" width="100%">
+			<mx:FormItem label="Rodzja pytań" width="100%">
 				<s:DropDownList id='typZadania' width="100%" dataProvider="{Const.TYP_ZADANIA_KONWERTER}"
-								change="typZadania_changeHandler(event)"/>
+								change="typZadania_changeHandler(event)" enabled="false"/>
 			</mx:FormItem>
 			<mx:FormItem label="Przedmiot" width="100%">
 				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.przedmiot}"/>

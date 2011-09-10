@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXAdvancedDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+								  xmlns:s="library://ns.adobe.com/flex/spark" 
+								  xmlns:mx="library://ns.adobe.com/flex/mx" 
+								  focusEnabled="true"
+								  height="200" width="100%"
+								  dataChange="dataChangeHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import net.twerno.eduClient.RO.sesja.Sesja_SkrotWynikow;
+			import net.twerno.eduClient.RO.zadanie.ZadanieZadanie_Wynik_WithSkrot;
+			
+			import pl.twerno.eduClient.Env.Env;
+			
+			[Bindable] private var skroty_wynikow:ArrayCollection = new ArrayCollection();
+			[Bindable] private var max:Number = 0;
+
+			protected function dataChangeHandler(event:FlexEvent):void {
+				for each (var wynik:ZadanieZadanie_Wynik_WithSkrot in Env.get.nauczycielEnv.wynikiList)
+					if (wynik.username == data)
+						skroty_wynikow = wynik.skroty_wynikow;
+					
+				var new_max:Number = 0;	
+					
+				for each (var skrot:Sesja_SkrotWynikow in skroty_wynikow)
+					new_max = Math.max(new_max, skrot.wynik);
+				
+				max = new_max +1;
+			}
+		]]>
+	</fx:Script>
+
+	<mx:LineChart
+		          id="linechart1" 
+				  showDataTips="true"
+				  dataProvider="{skroty_wynikow}" 
+				  right="110" left="30" bottom="100" top="0">
+		<mx:series>
+			<mx:LineSeries displayName="Czas" yField="len" xField="lp">
+				<mx:lineStroke>
+					<s:SolidColorStroke color="0x0000ff" weight="2"/>
+				</mx:lineStroke>
+			</mx:LineSeries>
+		</mx:series>
+	</mx:LineChart>
+	
+	<mx:LineChart
+		          id="linechart0" 
+				  showDataTips="true"
+				  dataProvider="{skroty_wynikow}" right="110" left="30" bottom="0" top="100">
+		<mx:series>
+			<mx:LineSeries displayName="Punkty" yField="wynik" xField="lp"/>
+		</mx:series>
+		
+		<mx:verticalAxis>
+			<mx:LinearAxis minimum="0" maximum="{max}"/>
+		</mx:verticalAxis>
+		
+	</mx:LineChart>
+	
+</s:MXAdvancedDataGridItemRenderer>

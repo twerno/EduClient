@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   width="800" height="500" 
+			   close="titlewindow1_closeHandler(event)"
+			    title="Wyniki">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.twerno.eduClient.rpc.tokens.RpcToken;
+			
+			import pl.twerno.eduClient.Env.Env;
+			
+			public function init(zadaneZadanieId:String):void {
+				Env.get.nauczycielEnv.wynikiList.removeAll();
+				var token:RpcToken = Env.get.eduClient.zadanieService.dajSkroconeWyniki(zadaneZadanieId);
+				token.newResponder(dajSkroconeWynikiHandler, Env.get.FaultHandler);
+			}
+			
+			private function dajSkroconeWynikiHandler(event:ResultEvent, token:RpcToken):void {
+				Env.get.nauczycielEnv.wynikiList = event.result as ArrayCollection;
+			}
+
+			protected function titlewindow1_closeHandler(event:CloseEvent):void {
+				Env.get.zamknijPopUp();
+			}
+
+		]]>
+	</fx:Script>
+	<mx:AdvancedDataGrid designViewDataType="tree" 
+						 left="0" top="0" right="0" bottom="0"
+						 borderVisible="false"
+						 variableRowHeight="true">
+		<mx:dataProvider>
+			<mx:HierarchicalData source="{Env.get.nauczycielEnv.wynikiList}" childrenField="username"/>
+		</mx:dataProvider>
+
+		<mx:rendererProviders>            
+			<mx:AdvancedDataGridRendererProvider
+				renderer="pl.twerno.eduClient.panels.nauczyciel.renderers.SkrotyWynikowRenderer"
+				depth="2"
+				columnIndex="0"
+				columnSpan="0"/>         
+		</mx:rendererProviders>
+		<mx:columns>
+			<mx:AdvancedDataGridColumn headerText="Uczeń" dataField="username"/>
+			<mx:AdvancedDataGridColumn headerText="Ilosc Podejść" dataField="iloscPodejsc"/>
+			<mx:AdvancedDataGridColumn headerText="Ilosc Zdanych" dataField="iloscZdanych"/>
+			<!--<mx:AdvancedDataGridColumn dataField="skroty_wynikow" headerText="Detail"/>-->
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+</s:TitleWindow>

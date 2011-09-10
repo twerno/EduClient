@@ -43,12 +43,12 @@
 					currentState = 'Main';
 				}
 				
-				if (env.nauczycielEnv.wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO) {
-					env.nauczycielEnv.wybraneZadanie.iloscPytan = 0;
-					for each (var zzb:Zadanie_ZbiorPytan in env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan)
-						env.nauczycielEnv.wybraneZadanie.iloscPytan += zzb.iloscPytan;
-					env.nauczycielEnv.wyliczMaxIloscPytan();	
-				}
+				wyliczIloscPytan();
+			}
+			
+			private function wyliczIloscPytan():void {
+				env.nauczycielEnv.wyliczMaxIloscPytan();
+				env.nauczycielEnv.wyliczIloscPytan();
 			}
 
 			protected function dataChangeHandler(event:FlexEvent):void {
@@ -73,13 +73,17 @@
 			protected function addedToStageHandler(event:Event):void {
 				env.addEventListener(NauczycielEvent.TYP_WYBORU_CHANGED, typ_wyboru_hanged);				
 			}
-			
+
 			private function typ_wyboru_hanged(event:NauczycielEvent):void {
 				dataChangeHandler(null);
 			}
 
 			protected function removedFromStageHandler(event:Event):void {
 				env.removeEventListener(NauczycielEvent.TYP_WYBORU_CHANGED, typ_wyboru_hanged);	
+			}
+
+			protected function iloscPytan_changeHandler(event:Event):void {
+				wyliczIloscPytan();
 			}
 
 		]]>
@@ -99,6 +103,7 @@
 	<s:NumericStepper id='iloscPytan' includeIn="Selected" y="27"
 					  minimum="1" stepSize="1"
 					  maximum='{(data as ZbiorPytan).size}'
-					  value="@{zzp.iloscPytan}" right="5" left="120"/>
+					  value="@{zzp.iloscPytan}" right="5" left="120"
+					  change="iloscPytan_changeHandler(event)"/>
 	<s:Label x="25" y="27" text="Pytań ze zbioru:" height="25" verticalAlign="middle" includeIn="Selected"/>
 </s:ItemRenderer>

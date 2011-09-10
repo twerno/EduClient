@@ -11,6 +11,7 @@
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			
@@ -21,6 +22,7 @@
 			
 			import pl.twerno.commLib.Images;
 			import pl.twerno.eduClient.Env.Env;
+			import pl.twerno.eduClient.panels.uczen.TablicaWynikowWindow;
 			
 			private function getObowiazkoweStr():String {
 				if (data == null) return '';
@@ -56,18 +58,14 @@
 				wypelnijWyniki();
 			}
 
-			
 			protected function rozwiaz_clickHandler(event:MouseEvent):void {
 				Env.get.uczenEnv.otworzSesje((data as ZadaneZadanie_WithStats).zadanie.id);					
 			}
 
 			protected function tablicaWynikow_Handler(event:MouseEvent):void {
-				var token:RpcToken = Env.get.eduClient.zadanieService.dajTabliceWynikow((data as ZadaneZadanie_WithStats).zadanie.id);
-				token.newResponder(hang, Env.get.FaultHandler);
-			}
-			
-			private function hang(result:ResultEvent, token:RpcToken):void {
-				trace(result.toString());
+				var window:TablicaWynikowWindow = PopUpManager.createPopUp(this, TablicaWynikowWindow, true) as TablicaWynikowWindow;
+				window.init((data as ZadaneZadanie_WithStats).zadanie.id);
+				Env.get.openPopUp(window);
 			}
 
 		]]>

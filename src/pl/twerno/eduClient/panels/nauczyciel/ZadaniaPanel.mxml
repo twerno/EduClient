@@ -46,6 +46,7 @@
 			private function initControls():void {
 				zadaniePanel.enabled = env.nauczycielEnv.wybraneZadanie != null;
 				zasadyPanel.enabled  = env.nauczycielEnv.wybraneZadanie != null; 
+				env.nauczycielEnv.wyliczMaxIloscPytan();
 
 				if (zadaniePanel.enabled) {
 					typZadania.selectedItem 
@@ -55,9 +56,9 @@
 						= Const.TYP_WYBORU_KONWERTER.itemByVal(
 							env.nauczycielEnv.wybraneZadanie.typWyboruPytan);
 					switch (env.nauczycielEnv.wybraneZadanie.trybSprawdzenia) {
-						case Const.TYP_SPRAWDZENIA_NATYCHMIAST       : sprNatychmiast.selected = true; break;
+						case Const.TYP_SPRAWDZENIA_NATYCHMIAST       : sprNatychmiast.selected      = true; break;
 						case Const.TYP_SPRAWDZENIA_NATYCHMIAST_WUMUS : sprNatychmiastWymus.selected = true; break;
-						case Const.TYP_SPRAWDZENIA_PO_ZAKONCZENIU    : sprNaKoncu.selected = true; break; 
+						case Const.TYP_SPRAWDZENIA_PO_ZAKONCZENIU    : sprNaKoncu.selected          = true; break; 
 					}
 
 					typZadania.enabled = env.nauczycielEnv.wybraneZadanie.id == '';
@@ -87,6 +88,8 @@
 			
 			private function wczytajDostepneZbioryTypu_Handler(event:ResultEvent, token:RpcToken):void {
 				env.nauczycielEnv.dostepneZbioryPytanTypu = event.result as ArrayCollection;
+				env.nauczycielEnv.wyliczIloscPytan();
+				env.nauczycielEnv.wyliczMaxIloscPytan();
 			}
 
 			protected function typZadania_changeHandler(event:IndexChangeEvent):void {
@@ -119,6 +122,23 @@
 				var event:NauczycielEvent = new NauczycielEvent(NauczycielEvent.TYP_WYBORU_CHANGED);
 				env.dispatchEvent(event);
 			}
+
+			protected function usunZadanie_Handler(event:MouseEvent):void {
+				var zadanie:Zadanie = zadaniaList.selectedItem as Zadanie;
+				if (!zadanie) return;
+				if (zadanie.id == '') {
+					Alert.show("Żeby usunąć zadanie musisz je najpierw zapisać.");
+					return;
+				}
+				var token:RpcToken = env.eduClient.zadanieService.usunZadanie(zadanie);
+				token.newResponder(usunZadanieHandler, env.FaultHandler);
+			}
+
+			private function usunZadanieHandler(event:ResultEvent, token:ZadanieToken):void {
+				var idx:int = env.nauczycielEnv.zadaniaList.getItemIndex( token.zadanie );
+				env.nauczycielEnv.zadaniaList.removeItemAt(idx);
+			}
+
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -133,7 +153,7 @@
 			<mx:FormItem label="Nazwa" width="100%">
 				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybraneZadanie.nazwa}"/>
 			</mx:FormItem>
-			<mx:FormItem label="Typ zadania" width="100%">
+			<mx:FormItem label="Rodzaj pytań" width="100%">
 				<s:DropDownList id='typZadania' width="100%" dataProvider="{Const.TYP_ZADANIA_KONWERTER}"
 								change="typZadania_changeHandler(event)"/>
 			</mx:FormItem>
@@ -143,7 +163,7 @@
 			</mx:FormItem>
 			<mx:FormItem label="Minimalny wynik" width="100%">
 				<s:NumericStepper id='minimalnyWynik' value="@{env.nauczycielEnv.wybraneZadanie.minimalnyWynik}" 
-					width="100%" minimum="0" maximum="{iloscPytan.value}" stepSize="1"/>
+					width="100%" minimum="0" stepSize="1"/>
 			</mx:FormItem>
 			<mx:FormItem label="Dostępne od" width="100%">
 				<mx:DateField width="100%" selectedDate="@{env.nauczycielEnv.wybraneZadanie.dtOd}"/>
@@ -157,7 +177,7 @@
 			<mx:FormItem label="Ilość pytań" width="100%">
 				<s:NumericStepper id='iloscPytan' width="100%" 
 								  stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.iloscPytan}" 
-								  minimum="0" maximum="{env.nauczycielEnv.maxIloscPytan}"/>
+								  minimum="0"/>
 			</mx:FormItem>
 			<mx:FormItem label="Wybór pytań" width="100%">
 				<s:DropDownList id='wyborPytan' width="100%" dataProvider="{Const.TYP_WYBORU_KONWERTER}"
@@ -185,7 +205,8 @@
 			  skinClass="pl.twerno.commLib.skins.button.AddButtonSkin" width="144" 
 			  click="dodajZadanie_clickHandler(event)"/>
 	<s:Button x="188" y="505" label="Usuń zadanie" 
-			  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin" width="144"/>
+			  skinClass="pl.twerno.commLib.skins.button.DeleteButtonSkin" width="144" 
+			  click="usunZadanie_Handler(event)"/>
 	<s:Button x="188" y="534" label="Zadaj zadanie" 
 			  skinClass="pl.twerno.commLib.skins.button.HouseButtonSkin" width="144"
 			  click="zadajZadanie_clickHandler(event)"/>
@@ -227,25 +248,22 @@
 									  maximum="{punktySilver.value}" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
-					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_goldImg}"/>
-					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
-					<s:NumericStepper id='czasGold' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_gold}" 
-									  left="75" top="1" width="100%" minimum="{czasSilver.value}" 
-									  maximum="{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" stepSize="1"/>
-				</s:Group>
-					<s:Group minHeight="25" width="100%">
-						<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_silverImg}"/>
-						<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
-						<s:NumericStepper id='czasSilver' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_silver}" 
-										  left="75" top="1" width="100%" minimum="{czasBronze.value}" 
-										  maximum="{czasGold.value}" stepSize="1"/>
-				</s:Group>
-				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_bronzeImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
 					<s:NumericStepper id='czasBronze' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_bronze}" 
-									  left="75" top="1" width="100%" minimum="0" 
-									  maximum="{czasSilver.value}" stepSize="1"/>
+									  left="75" top="1" width="100%" stepSize="1" minimum="0" maximum="999"/>
+				</s:Group>
+				<s:Group minHeight="25" width="100%">
+					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_silverImg}"/>
+					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
+					<s:NumericStepper id='czasSilver' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_silver}" 
+									  left="75" top="1" width="100%" stepSize="1" minimum="0" maximum="999"/>
+				</s:Group>
+				<s:Group minHeight="25" width="100%">
+					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_goldImg}"/>
+					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
+					<s:NumericStepper id='czasGold' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_gold}" 
+									  left="75" top="1" width="100%" stepSize="1" minimum="0" maximum="999"/>
 				</s:Group>
 			</s:Group>
 		</s:Scroller>
