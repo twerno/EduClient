@@ -2,7 +2,7 @@
 <s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 						  xmlns:s="library://ns.adobe.com/flex/spark" 
 						  xmlns:mx="library://ns.adobe.com/flex/mx" 
-						  focusEnabled="true">
+						  focusEnabled="true" xmlns:panels="pl.twerno.eduClient.panels.*">
 
 	<fx:Script>
 		<![CDATA[
@@ -14,7 +14,8 @@
 			import pl.twerno.eduClient.panels.nauczyciel.WynikiWindow;
 			
 			protected function button1_clickHandler(event:MouseEvent):void {
-				var win:WynikiWindow = PopUpManager.createPopUp(this, WynikiWindow, true) as WynikiWindow;
+				// co za głupota ... bez rzutowanie nie dziala :/
+				var win:WynikiWindow = PopUpManager.createPopUp(Env.get.masterPanel as DisplayObject, WynikiWindow, true) as WynikiWindow;
 				win.init((data as ZadaneZadanie).id);
 				Env.get.openPopUp(win);
 			}

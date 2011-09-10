@@ -26,9 +26,6 @@ package pl.twerno.eduClient.Env {
 
 		public var eduClient : EduClient = new EduClient(endPoint);
 		
-		[Embed(source="conf/Conf.xml")]
-		private var conf:Class;
-		
 		[Bindable]
 		public var adminEnv:AdminEnv = new AdminEnv();
 		

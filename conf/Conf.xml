@@ -1,3 +1,0 @@
-<EduClient>
-	<destination>http://localhost:8080/EduServer/messagebroker/amf</destination>
-</EduClient>
