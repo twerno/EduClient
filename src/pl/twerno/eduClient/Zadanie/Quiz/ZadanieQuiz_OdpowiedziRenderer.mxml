@@ -13,7 +13,7 @@
 				
 				var odp:ZadanieQuiz_OdpowiedziItem = data as ZadanieQuiz_OdpowiedziItem;
 
-				if (odp.sprawdzone) {
+				if (odp.sprawdzone && odp.zaznaczone) {
 					if (odp.poprawne)
 						stroke.color = 0x00FF00;
 					else

@@ -7,6 +7,7 @@
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.rpc.events.ResultEvent;
 			
 			import net.twerno.eduClient.RO.pytanie.PytanieZamkniete;
@@ -15,6 +16,7 @@
 			import net.twerno.eduClient.responders.RpcResponder;
 			import net.twerno.eduClient.rpc.tokens.RpcToken;
 			
+			import pl.twerno.commLib.helpers.ValidateHelper;
 			import pl.twerno.commLib.konwerter.KonwerterItem;
 			import pl.twerno.eduClient.panels.nauczyciel.renderers.PytaniaListRenderer_Posortuj;
 			import pl.twerno.eduClient.panels.nauczyciel.renderers.PytaniaListRenderer_Quiz;
@@ -93,7 +95,7 @@
 				setCorrectItemRenderer();
 				pytaniaPanel.enabled = env.nauczycielEnv.wybranyZbiorPytan.typZadania != '';
 			}
-			
+
 			protected function setCorrectItemRenderer():void {
 				pytaniaList.selectedItem = null;
 				if (env.nauczycielEnv.wybranyZbiorPytan.typZadania == Const.TYP_ZADANIA_POSORTUJ)
@@ -103,9 +105,13 @@
 			}
 
 			protected function zapisz_clickHandler(event:MouseEvent):void {
-				//TODO Sprawdzie
-				var token:RpcToken = env.eduClient.pytanieService.zapiszZbiorPytan(env.nauczycielEnv.wybranyZbiorPytan, env.nauczycielEnv.pytaniaList);
-				token.addResponder(new RpcResponder(zbiorZapisanyHandler, env.FaultHandler));
+				if (ValidateHelper.validateAll([nazwaValid, przedmiotValid])) {
+					if (env.nauczycielEnv.pytaniaList.length == 0) {
+						Alert.show('Dodaj pytania zanim zapiszesz zbiór.', 'Pusty');
+					}
+					var token:RpcToken = env.eduClient.pytanieService.zapiszZbiorPytan(env.nauczycielEnv.wybranyZbiorPytan, env.nauczycielEnv.pytaniaList);
+					token.addResponder(new RpcResponder(zbiorZapisanyHandler, env.FaultHandler));
+				}
 			}
 
 			protected function zbiorZapisanyHandler(event:ResultEvent, token:RpcToken):void {
@@ -113,6 +119,7 @@
 				env.nauczycielEnv.zapiszZbior(zapisanyZbior);
 				env.nauczycielEnv.pytaniaList.removeAll();
 				env.nauczycielEnv.wybranyZbiorPytan = zapisanyZbior;
+				zbioryList.selectedItem = zapisanyZbior;
 				wybranyZbiorChanged();
 			}
 
@@ -145,6 +152,15 @@
 	</fx:Script>
 
 	<fx:Declarations>
+		<fx:String id="poleWymagane">To pole jest wymagane!</fx:String>
+		
+		<mx:StringValidator id="nazwaValid" triggerEvent=''
+							source="{nazwaInput}" property="text" 
+							required="true" requiredFieldError="{poleWymagane}"/>
+
+		<mx:StringValidator id="przedmiotValid" triggerEvent=''
+							source="{przedmiotInput}" property="text" 
+							required="true" requiredFieldError="{poleWymagane}"/>
 	</fx:Declarations>
 	<s:List id='zbioryList' left="0" top="0" bottom="0" width="180"
 			dataProvider="{env.nauczycielEnv.zbioryPytanList}"
@@ -153,14 +169,14 @@
 	<s:Panel x="195" y="0" width="232" height="201" title="Zbiór pytań" id='zbPanel'>
 		<mx:Form left="0" top="0" bottom="0" right="0">
 			<mx:FormItem label="Nazwa" width="100%">
-				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.opis}"/>
+				<s:TextInput id='nazwaInput' width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.opis}"/>
 			</mx:FormItem>
 			<mx:FormItem label="Rodzja pytań" width="100%">
 				<s:DropDownList id='typZadania' width="100%" dataProvider="{Const.TYP_ZADANIA_KONWERTER}"
 								change="typZadania_changeHandler(event)" enabled="false"/>
 			</mx:FormItem>
 			<mx:FormItem label="Przedmiot" width="100%">
-				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.przedmiot}"/>
+				<s:TextInput id='przedmiotInput' width="100%" text="@{env.nauczycielEnv.wybranyZbiorPytan.przedmiot}"/>
 			</mx:FormItem>
 			<mx:FormItem width="100%">
 				<s:CheckBox label="publiczny" width="100%" height="100%"

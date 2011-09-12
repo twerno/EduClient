@@ -35,12 +35,12 @@
 					env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan.addItem(zzp);
 					
 					if (env.nauczycielEnv.wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO)
-						currentState = 'Selected';
+						setSel();
 					else 
-						currentState = 'Main';
+						setMain();
 				} else {
 					env.nauczycielEnv.wybraneZadanie.del_zbiorPytan((data as ZbiorPytan).id);
-					currentState = 'Main';
+					setMain();
 				}
 				
 				wyliczIloscPytan();
@@ -49,6 +49,16 @@
 			private function wyliczIloscPytan():void {
 				env.nauczycielEnv.wyliczMaxIloscPytan();
 				env.nauczycielEnv.wyliczIloscPytan();
+			}
+			
+			private function setMain():void {
+				currentState = 'Selected';
+				currentState = 'Main';
+			}
+			
+			private function setSel():void {
+				currentState = 'Main';
+				currentState = 'Selected';	
 			}
 
 			protected function dataChangeHandler(event:FlexEvent):void {
@@ -60,13 +70,12 @@
 				if (zzp != null) {
 					chBox.selected = true;
 					if (env.nauczycielEnv.wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO) {
-						currentState   = 'Selected';
-//						wyliczMaxIloscPytan();
+						setSel();
 					} else
-						currentState   = 'Main';
+						setMain();
 				} else {
 					chBox.selected = false;
-					currentState   = 'Main';
+					setMain();
 				}
 			}
 

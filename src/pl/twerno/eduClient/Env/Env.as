@@ -1,5 +1,6 @@
 package pl.twerno.eduClient.Env {
 	import flash.events.EventDispatcher;
+	import flash.events.UncaughtErrorEvent;
 	
 	import mx.containers.Accordion;
 	import mx.controls.Alert;
@@ -11,6 +12,7 @@ package pl.twerno.eduClient.Env {
 	import net.twerno.eduClient.RO.ROOEntity;
 	import net.twerno.eduClient.RO.user.Account;
 	import net.twerno.eduClient.rpc.tokens.RpcToken;
+	import net.twerno.eduClient.validator.ValidatorError;
 	
 	import pl.twerno.eduClient.UserEnv.AdminEnv;
 	import pl.twerno.eduClient.UserEnv.NauczycielEnv;

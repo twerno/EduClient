@@ -21,11 +21,13 @@
 			import net.twerno.eduClient.rpc.tokens.ZadanieToken;
 			
 			import pl.twerno.commLib.Images;
+			import pl.twerno.commLib.helpers.ValidateHelper;
 			import pl.twerno.commLib.konwerter.KonwerterItem;
 			
 			import spark.events.IndexChangeEvent;
 
 			protected function dodajZadanie_clickHandler(event:MouseEvent):void {
+				zadaniaList.selectedIndex = -1;
 				env.nauczycielEnv.wybraneZadanie = new Zadanie();
 				wczytajZbioryPytan();
 				initControls();
@@ -67,12 +69,16 @@
 			}
 
 			protected function zapiszZadanie_clickHandler(event:MouseEvent):void {
-				var token:RpcToken = env.eduClient.zadanieService.zapiszZadanie(env.nauczycielEnv.wybraneZadanie);
-				token.newResponder(zapiszZadanie_Handler, env.FaultHandler);
+				if (validateZadanie()) {
+					var token:RpcToken = env.eduClient.zadanieService.zapiszZadanie(env.nauczycielEnv.wybraneZadanie);
+					token.newResponder(zapiszZadanie_Handler, env.FaultHandler);
+				}
 			}
-			
+
 			protected function zapiszZadanie_Handler(event:ResultEvent, token:ZadanieToken):void {
 				env.nauczycielEnv.zapisz_Zadanie(event.result as Zadanie);
+				zadaniaList.selectedItem = event.result as Zadanie;
+				zadaniaList_changeHandler(null);
 			}
 
 			protected function zadaniaList_changeHandler(event:IndexChangeEvent):void {
@@ -137,12 +143,51 @@
 			private function usunZadanieHandler(event:ResultEvent, token:ZadanieToken):void {
 				var idx:int = env.nauczycielEnv.zadaniaList.getItemIndex( token.zadanie );
 				env.nauczycielEnv.zadaniaList.removeItemAt(idx);
+				zadaniaList.selectedIndex = -1;
+				zadaniaList_changeHandler(null);
+			}
+			
+			protected function validateZadanie():Boolean {
+				return ValidateHelper.validateAll([nazwaValid, minimalnyWynikValid, iloscValid,
+					punktyBronzeValid, punktySilverValid, punktyGoldValid,
+					czasBronzeValid, czasSilverValid, czasGoldValid]);
 			}
 
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<fx:String id="poleWymagane">To pole jest wymagane!</fx:String>
+
+		<mx:StringValidator id="nazwaValid" triggerEvent=''
+			                source="{nazwaField}" property="text" 
+							required="true" requiredFieldError="{poleWymagane}"/>
+		<mx:NumberValidator id='minimalnyWynikValid' triggerEvent=''
+							source="{minimalnyWynik}" property="value"
+							minValue="1" maxValue="{iloscPytan.value}"/>		
+		<mx:NumberValidator id='iloscValid' triggerEvent=''
+							source="{iloscPytan}" property="value"
+							minValue="1" maxValue="{env.nauczycielEnv.maxIloscPytan}"/>
+
+		<mx:NumberValidator id='punktyBronzeValid' triggerEvent=''
+							source="{punktyBronze}" property="value"
+							minValue="0" maxValue="{punktySilver.value}"/>
+		<mx:NumberValidator id='punktySilverValid' triggerEvent=''
+							source="{punktySilver}" property="value"
+							minValue="{punktyBronze.value}" maxValue="{punktyGold.value}"/>
+		<mx:NumberValidator id='punktyGoldValid' triggerEvent=''
+							source="{punktyGold}" property="value"
+							minValue="{punktySilver.value}" maxValue="{iloscPytan.value}"/>
+		
+		<mx:NumberValidator id='czasBronzeValid' triggerEvent=''
+							source="{czasBronze}" property="value"
+							minValue="{czasSilver.value}" maxValue="999"/>
+		<mx:NumberValidator id='czasSilverValid' triggerEvent=''
+							source="{czasSilver}" property="value"
+							minValue="{czasGold.value}" maxValue="{czasBronze.value}"/>
+		<mx:NumberValidator id='czasGoldValid' triggerEvent=''
+							source="{czasGold}" property="value"
+							minValue="0" maxValue="{czasSilver.value}"/>
+
 	</fx:Declarations>
 	<s:List id='zadaniaList' left="0" top="0" width="180" bottom="0" 
 			dataProvider="{env.nauczycielEnv.zadaniaList}"
@@ -151,7 +196,9 @@
 	<s:Panel width="370" height="468" left="190" top="0" title="Zadanie" id='zadaniePanel'>
 		<mx:Form left="0" top="0" right="0" bottom="0">
 			<mx:FormItem label="Nazwa" width="100%">
-				<s:TextInput width="100%" text="@{env.nauczycielEnv.wybraneZadanie.nazwa}"/>
+				<s:TextInput id="nazwaField"
+							 width="100%" 
+							 text="@{env.nauczycielEnv.wybraneZadanie.nazwa}"/>
 			</mx:FormItem>
 			<mx:FormItem label="Rodzaj pytań" width="100%">
 				<s:DropDownList id='typZadania' width="100%" dataProvider="{Const.TYP_ZADANIA_KONWERTER}"
@@ -226,44 +273,37 @@
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_goldImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Punkty" />
 					<s:NumericStepper id='punktyGold' value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_gold}" 
-									  left="75" top="1" width="100%" 
-									  minimum="{punktySilver.value}" 
-									  maximum="{env.nauczycielEnv.wybraneZadanie.iloscPytan}" stepSize="1"/>
+									  left="75" top="1" width="100%" minimum="0" maximum="9999" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_silverImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Punkty" />
 					<s:NumericStepper id='punktySilver' value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_silver}" 
-									  left="75" top="1" width="100%" 
-									  minimum="{punktyBronze.value}" 
-									  maximum="{punktyGold.value}"
-									  stepSize="1"/>
+									  left="75" top="1" width="100%" minimum="0" maximum="9999" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_bronzeImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Punkty" />
 					<s:NumericStepper id='punktyBronze' value="@{env.nauczycielEnv.wybraneZadanie.zasady.punkty_bronze}" 
-									  left="75" top="1" width="100%" 
-									  minimum="0" 
-									  maximum="{punktySilver.value}" stepSize="1"/>
+									  left="75" top="1" width="100%" minimum="0" maximum="9999" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_bronzeImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
 					<s:NumericStepper id='czasBronze' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_bronze}" 
-									  left="75" top="1" width="100%" stepSize="1" minimum="0" maximum="999"/>
+									  left="75" top="1" width="100%" minimum="0" maximum="9999" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_silverImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
 					<s:NumericStepper id='czasSilver' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_silver}" 
-									  left="75" top="1" width="100%" stepSize="1" minimum="0" maximum="999"/>
+									  left="75" top="1" width="100%" minimum="0" maximum="9999" stepSize="1"/>
 				</s:Group>
 				<s:Group minHeight="25" width="100%">
 					<mx:Image verticalCenter="0" width="16" height="16" left="5" source="{Images.get().medal_goldImg}"/>
 					<s:Label verticalCenter="2" left="25" width="50" text="Czas" />
 					<s:NumericStepper id='czasGold' value="@{env.nauczycielEnv.wybraneZadanie.zasady.czas_gold}" 
-									  left="75" top="1" width="100%" stepSize="1" minimum="0" maximum="999"/>
+									  left="75" top="1" width="100%" minimum="0" maximum="9999" stepSize="1"/>
 				</s:Group>
 			</s:Group>
 		</s:Scroller>
