@@ -30,6 +30,8 @@ package pl.twerno.eduClient.UserEnv {
 		
 		public var wynikiList:ArrayCollection = new ArrayCollection();
 		
+		public var zadanieCallback:Function = null; 
+		
 		public function clean():void {
 			zbioryPytanList.removeAll();
 			pytaniaList.removeAll();
@@ -41,6 +43,7 @@ package pl.twerno.eduClient.UserEnv {
 			zadaneZadaniaList.removeAll();
 			maxIloscPytan = 0;
 			wynikiList.removeAll();
+			zadanieCallback = null;
 		}
 
 		

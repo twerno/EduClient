@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXAdvancedDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+								  xmlns:s="library://ns.adobe.com/flex/spark" 
+								  xmlns:mx="library://ns.adobe.com/flex/mx" 
+								  focusEnabled="true"
+								  dataChange="dataChangeHandler(event)"
+								  minWidth="160" minHeight="25">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Image;
+			import mx.events.FlexEvent;
+			
+			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_Wynik_WithSkrot;
+			
+			import pl.twerno.commLib.Images;
+			import pl.twerno.eduClient.Env.Env;
+
+			protected function dataChangeHandler(event:FlexEvent):void {
+				content.removeAllElements();
+				if (!(data is ZadaneZadanie_Wynik_WithSkrot)) return;
+				
+				var w:ZadaneZadanie_Wynik_WithSkrot = data as ZadaneZadanie_Wynik_WithSkrot;
+
+				if (w.bezblednie)    addImage(Images.get().controllerImg);
+				if (w.czas_bronze)   addImage(Images.get().medal_bronzeImg);
+				if (w.czas_silver)   addImage(Images.get().medal_silverImg);
+				if (w.czas_gold)     addImage(Images.get().medal_goldImg);
+				if (w.punkty_bronze) addImage(Images.get().medal_bronzeImg);
+				if (w.punkty_silver) addImage(Images.get().medal_silverImg);
+				if (w.punkty_gold)   addImage(Images.get().medal_goldImg);
+			}
+			
+			private function addImage(source:Class):void {
+				content.addElement(getImage(source));
+			}
+			
+			private function getImage(source:Class):Image {
+				var result:Image = new Image();
+				result.source = source;
+				result.width  = 16;
+				result.height = 16;
+				result.verticalCenter = 0;
+				return result;
+			}
+
+		]]>
+	</fx:Script>
+	<s:Group id='content' top="0" left="5" right="5" bottom="0">
+		<s:layout>
+			<s:HorizontalLayout gap="5">
+				
+			</s:HorizontalLayout>
+		</s:layout>
+	</s:Group>
+</s:MXAdvancedDataGridItemRenderer>

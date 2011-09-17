@@ -18,7 +18,7 @@ package pl.twerno.eduClient.UserEnv {
 		
 		public var sesjaOtwarta:SesjaOtwartaRO;		
 
-
+		public var tablicaWynikow:ArrayCollection = new ArrayCollection();
 		
 		
 		
@@ -47,6 +47,7 @@ package pl.twerno.eduClient.UserEnv {
 		public function clean():void {
 			zamknijSesje();
 			zadaniaList.removeAll();
+			tablicaWynikow.removeAll();
 		}
 	}
 }

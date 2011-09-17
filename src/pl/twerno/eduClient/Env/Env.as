@@ -24,9 +24,9 @@ package pl.twerno.eduClient.Env {
 
 	public class Env extends EventDispatcher {
 
-		public const endPoint : String = 'http://localhost:8080/EduServer/messagebroker/amf';
-
-		public var eduClient : EduClient = new EduClient(endPoint);
+		public var config : Config = new Config();
+		
+		public var eduClient : EduClient = new EduClient(config.endPoint);
 		
 		[Bindable]
 		public var adminEnv:AdminEnv = new AdminEnv();

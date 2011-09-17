@@ -59,7 +59,7 @@
 			}
 
 			protected function rozwiaz_clickHandler(event:MouseEvent):void {
-				Env.get.uczenEnv.otworzSesje((data as ZadaneZadanie_WithStats).zadanie.id);					
+				Env.get.uczenEnv.otworzSesje((data as ZadaneZadanie_WithStats).zadanie.id);
 			}
 
 			protected function tablicaWynikow_Handler(event:MouseEvent):void {

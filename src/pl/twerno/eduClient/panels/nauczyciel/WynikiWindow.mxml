@@ -51,10 +51,16 @@
 				columnSpan="0"/>         
 		</mx:rendererProviders>
 		<mx:columns>
-			<mx:AdvancedDataGridColumn headerText="Uczeń" dataField="username"/>
-			<mx:AdvancedDataGridColumn headerText="Ilosc Podejść" dataField="iloscPodejsc"/>
-			<mx:AdvancedDataGridColumn headerText="Ilosc Zdanych" dataField="iloscZdanych"/>
-			<!--<mx:AdvancedDataGridColumn dataField="skroty_wynikow" headerText="Detail"/>-->
+			<mx:AdvancedDataGridColumn headerText="Uczeń"                 dataField="username"/>
+			<mx:AdvancedDataGridColumn headerText="Ukończone"             dataField="ukonczone"
+									   itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.TakNieItemRenderer"/>
+			<mx:AdvancedDataGridColumn headerText="Najlepszy wynik"       dataField="maxWynik"/>
+			<mx:AdvancedDataGridColumn headerText="Najlepszy czas"        dataField="minCzas"/>
+			<mx:AdvancedDataGridColumn headerText="podejść/zdanych"       dataField="username"
+									   itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.WynikiPodejscZdanychDataGridRenderer"/>
+			<mx:AdvancedDataGridColumn headerText="Wyróżnienia"           dataField="username"
+									   itemRenderer="pl.twerno.eduClient.panels.nauczyciel.renderers.WynikiWyroznieniaDataGridRenderer"
+									   width="150"/>
 		</mx:columns>
 	</mx:AdvancedDataGrid>
 </s:TitleWindow>

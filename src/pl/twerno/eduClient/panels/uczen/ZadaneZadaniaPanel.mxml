@@ -17,6 +17,7 @@
 				env.uczenEnv.zadaniaList.removeAll();
 				var token:RpcToken = env.eduClient.zadanieService.dajZadaneMi(false);
 				token.newResponder(dajZadaneMiHandler, env.FaultHandler);
+				env.nauczycielEnv.zadanieCallback = init;
 			}
 
 			private function dajZadaneMiHandler(event:ResultEvent, token:RpcToken):void {

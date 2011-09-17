@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXAdvancedDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+								  xmlns:s="library://ns.adobe.com/flex/spark" 
+								  xmlns:mx="library://ns.adobe.com/flex/mx" 
+								  focusEnabled="true"
+								  dataChange="dataChangeHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_Wynik_WithSkrot;
+			
+			import pl.twerno.eduClient.Env.Env;
+
+			protected function dataChangeHandler(event:FlexEvent):void {
+				if (data is ZadaneZadanie_Wynik_WithSkrot)
+					lblData.text = data.iloscZdanych.toString() +' / ' +data.iloscPodejsc.toString();
+				else
+					lblData.text = '0 / 0';
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Label id='lblData' left="5" top="5" right="5" bottom="0" text="0/0"/>
+</s:MXAdvancedDataGridItemRenderer>

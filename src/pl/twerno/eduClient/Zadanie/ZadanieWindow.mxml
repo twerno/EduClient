@@ -67,6 +67,8 @@
 			private var alert:Alert;
 			
 			private var zapisujeOdpowiedz:Boolean = false;
+			
+			public var callBackFunct:Function = null;
 
 			protected function closeHandler(event:CloseEvent):void {
 				if (currentState == 'wynikiState' || currentState == 'PreStart') {
@@ -91,6 +93,8 @@
 				timer.addEventListener(TimerEvent.TIMER, timerHandler);
 
 				this.zadaniePlayer = zadaniePlayer;
+				
+				callBackFunct = Env.get.nauczycielEnv.zadanieCallback;
 				
 				czasRozwiazania = 0;
 				uczenEnv.zamknijSesje();
@@ -123,6 +127,9 @@
 				removeEventListener(ListaPytanEvent.UTWORZONA, listaPytanHandler);		
 				timer.removeEventListener(TimerEvent.TIMER, timerHandler);
 				listaPytanBuilder.removeEventListener(ListaPytanEvent.UTWORZONA, listaPytanHandler);
+				
+				if (callBackFunct != null)
+					callBackFunct();
 				
 				env.zamknijPopUp();
 			}

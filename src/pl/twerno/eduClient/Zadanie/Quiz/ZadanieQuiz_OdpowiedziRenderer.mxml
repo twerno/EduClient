@@ -13,13 +13,13 @@
 				
 				var odp:ZadanieQuiz_OdpowiedziItem = data as ZadanieQuiz_OdpowiedziItem;
 
-				if (odp.sprawdzone && odp.zaznaczone) {
+				if (odp.sprawdzone) {
 					if (odp.poprawne)
 						stroke.color = 0x00FF00;
 					else
 						stroke.color = 0xFF0000;
 				}
-				rect.visible = odp.sprawdzone;	
+				rect.visible = odp.sprawdzone && odp.zaznaczone;	
 			}
 
 		]]>

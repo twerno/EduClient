@@ -9,17 +9,17 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
-			
+
 			import net.twerno.eduClient.RO.sesja.Sesja_SkrotWynikow;
-			import net.twerno.eduClient.RO.zadanie.ZadanieZadanie_Wynik_WithSkrot;
-			
+			import net.twerno.eduClient.RO.zadanie.ZadaneZadanie_Wynik_WithSkrot;
+
 			import pl.twerno.eduClient.Env.Env;
-			
+
 			[Bindable] private var skroty_wynikow:ArrayCollection = new ArrayCollection();
 			[Bindable] private var max:Number = 0;
 
 			protected function dataChangeHandler(event:FlexEvent):void {
-				for each (var wynik:ZadanieZadanie_Wynik_WithSkrot in Env.get.nauczycielEnv.wynikiList)
+				for each (var wynik:ZadaneZadanie_Wynik_WithSkrot in Env.get.nauczycielEnv.wynikiList)
 					if (wynik.username == data)
 						skroty_wynikow = wynik.skroty_wynikow;
 					
