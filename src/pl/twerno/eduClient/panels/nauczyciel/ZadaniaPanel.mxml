@@ -117,14 +117,19 @@
 				env.openPopUp(win);
 			}
 			
+			private function wyborPytan_ChangedHandler():void {
+				wyborPytan_Changed();
+				env.nauczycielEnv.wybraneZadanie.iloscPytan = 0;
+			}
+			
 			private function wyborPytan_Changed():void {
 				env.nauczycielEnv.wybraneZadanie.typWyboruPytan = (wyborPytan.selectedItem as KonwerterItem).val;
 				iloscPytan.enabled = (wyborPytan.selectedItem as KonwerterItem).val == Const.TYP_WYBORU_PYTAN_INTELIGENTNIE;
-				env.nauczycielEnv.wybraneZadanie.iloscPytan = 0;
 				if (!iloscPytan.enabled) {
 					for each (var zzb:Zadanie_ZbiorPytan in env.nauczycielEnv.wybraneZadanie.zadanie_zbioryPytan)
 						env.nauczycielEnv.wybraneZadanie.iloscPytan += zzb.iloscPytan;
 				}
+				env.nauczycielEnv.wyliczMaxIloscPytan();
 				var event:NauczycielEvent = new NauczycielEvent(NauczycielEvent.TYP_WYBORU_CHANGED);
 				env.dispatchEvent(event);
 			}
@@ -228,7 +233,7 @@
 			</mx:FormItem>
 			<mx:FormItem label="Wybór pytań" width="100%">
 				<s:DropDownList id='wyborPytan' width="100%" dataProvider="{Const.TYP_WYBORU_KONWERTER}"
-								change="wyborPytan_Changed()"/>
+								change="wyborPytan_ChangedHandler()"/>
 			</mx:FormItem>
 			<mx:FormItem label="Limit czasowy" width="100%">
 				<s:NumericStepper width="100%" stepSize="1" value="@{env.nauczycielEnv.wybraneZadanie.limitCzasowy}" minimum="0" maximum="999"/>

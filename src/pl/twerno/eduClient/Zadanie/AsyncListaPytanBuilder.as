@@ -116,7 +116,7 @@ package pl.twerno.eduClient.Zadanie {
 			var pyt:PytanieZamkniete;
 			for each (var opanowane:OpanowaniePytaniaRO in sesjaOtwarta.opanowanePytania) {
 				procent = opanowane.correctAnswers/opanowane.iloscPodejsc;
-				pyt = pytanie[opanowane.pytanieId];
+				pyt = pytania[opanowane.pytanieId];
 				if (procent > DP_ZNAJOMOSC_WYSOKA)
 					znajomosc[pyt] = ZNAJOMOSC_WYSOKA;
 				else if (procent > DP_ZNAJOMOSC_SREDNIA)
@@ -127,7 +127,7 @@ package pl.twerno.eduClient.Zadanie {
 			for (var o:Object in znajomosc) {
 				pyt = o as PytanieZamkniete;
 				kat = znajomosc[o];
-				zbiory[kat] = o;
+				(zbiory[kat] as ArrayCollection).addItem(pyt);
 			}
 
 			return zbiory;
@@ -138,8 +138,8 @@ package pl.twerno.eduClient.Zadanie {
 				throw new Error("ilość pytań w zbiorze: " +pytania.length.toString() +" oczekiwano co najmniej: " +iloscPytan.toString());
 			if (iloscPytan < 0)
 				throw new Error("ilośc pytań nie może być mniejsza niż 0");
-			if (pytania.length == 0)
-				throw new Error('zbiór pytań jest pusty');
+//			if (pytania.length == 0)
+//				throw new Error('zbiór pytań jest pusty');
 
 			var result:ArrayCollection = new ArrayCollection();
 			var idx:int;

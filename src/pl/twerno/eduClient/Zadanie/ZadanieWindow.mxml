@@ -376,8 +376,8 @@
 			  click.PreStart="start();"
 			  id='startButton' enabled="true" enabled.PreStart="false"
 			  verticalCenter.PreStart="0" x.zadanieState="823" horizontalCenter.PreStart="0"/>
-	<s:Label includeIn="PreStart" x="186" y="273" text="Wciśnij aby rozpocząć" fontSize="24"/>
-	<s:Rect height="100" radiusX="15" radiusY="15" top="457" left="10" width="590">
+	<s:Label includeIn="PreStart" x="186" y="275" text="Wciśnij aby rozpocząć" fontSize="24"/>
+	<s:Rect height="100" radiusX="15" radiusY="15" top="457" left="10" width="590" includeIn="PreStart">
 		<s:fill>
 			<s:SolidColor color="0xFFFFFF" alpha=".5"/>
 		</s:fill>

@@ -95,13 +95,14 @@ package pl.twerno.eduClient.UserEnv {
 		public function wyliczMaxIloscPytan():void {
 			var maxIloscPytan: int = 0;
 			if (wybraneZadanie) {
-				if (wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO)
+				if (wybraneZadanie.typWyboruPytan == Const.TYP_WYBORU_PYTAN_LOSOWO) {
 					for each (var z1:ZbiorPytan in dostepneZbioryPytanTypu)
 						if (wybraneZadanie.has_zbiorPytan(z1.id))
 							maxIloscPytan += z1.size;
-				else
+				} else {
 					for each (var z2:Zadanie_ZbiorPytan in wybraneZadanie.zadanie_zbioryPytan)
 						maxIloscPytan += z2.iloscPytan;
+				}
 			}
 
 			this.maxIloscPytan = maxIloscPytan;
